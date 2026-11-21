@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.local
+dist/
+.remotion/
+.DS_Store
+output/previews/
+output/videos/
+output/audio/
+output/branding/
+output/reports/
+public/audio/
+public/footage/

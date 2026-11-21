@@ -1,0 +1,38 @@
+{
+  "name": "video-ai-studio",
+  "version": "1.0.0",
+  "description": "Autonomous cinematic short-form 3D video production pipeline powered by Three.js, Remotion, and ElevenLabs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "npx remotion studio src/remotion/index.ts",
+    "generate:script": "tsx scripts/generate-script.ts",
+    "generate:voice": "tsx scripts/generate-voice.ts",
+    "generate:assets": "tsx scripts/generate-assets.ts",
+    "render:preview": "tsx scripts/render-video.ts --preview",
+    "render:final": "tsx scripts/render-video.ts",
+    "qa": "tsx scripts/quality-check.ts",
+    "produce": "tsx scripts/produce.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.300",
+    "@remotion/cli": "^4.0.300",
+    "@remotion/renderer": "^4.0.300",
+    "dotenv": "^16.4.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.300",
+    "three": "^0.174.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.174.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
