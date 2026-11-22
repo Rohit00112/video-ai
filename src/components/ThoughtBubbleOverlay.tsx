@@ -380,6 +380,37 @@ const BubbleContent: React.FC<{ item: ProjectedBubbleState }> = ({ item }) => {
         </svg>
       );
 
+    case 'puzzle':
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <rect x="12" y="12" width="48" height="48" rx="8" fill="#F4A261" stroke="#141414" strokeWidth="5" />
+            <path d="M12 36 Q22 28 26 36 Q30 44 40 36 L60 36" fill="none" stroke="#141414" strokeWidth="4" />
+            <path d="M36 12 Q44 22 36 26 Q28 30 36 40 L36 60" fill="none" stroke="#141414" strokeWidth="4" />
+          </svg>
+          <span style={{ fontSize: 18, fontWeight: 900, color: '#D97706' }}>puzzle</span>
+        </div>
+      );
+
+    case 'clock':
+      return (
+        <svg width="74" height="74" viewBox="0 0 74 74">
+          <circle cx="37" cy="37" r="32" fill="#FFF9ED" stroke="#141414" strokeWidth="5" />
+          <line x1="37" y1="37" x2="37" y2="18" stroke="#141414" strokeWidth="5" strokeLinecap="round" />
+          <line x1="37" y1="37" x2="52" y2="37" stroke="#E63946" strokeWidth="4" strokeLinecap="round" />
+          <circle cx="37" cy="37" r="4" fill="#141414" />
+        </svg>
+      );
+
+    case 'zzz':
+      return (
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, fontFamily: '"Arial Black", sans-serif' }}>
+          <span style={{ fontSize: 26, fontWeight: 900, color: '#4A6FA5' }}>z</span>
+          <span style={{ fontSize: 36, fontWeight: 900, color: '#2B4C7E' }}>z</span>
+          <span style={{ fontSize: 50, fontWeight: 900, color: '#1A2E4C' }}>Z</span>
+        </div>
+      );
+
     default:
       return <span style={{ fontSize: 48, fontWeight: 900, color: '#141414' }}>{cue.label ?? '!'}</span>;
   }

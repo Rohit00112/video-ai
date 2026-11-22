@@ -113,11 +113,14 @@ def house(name, x, y, w, h, wall, wall_sh, roof_c, roof_sh, door='#7B4A2E'):
     roof(f'{name}_roof', M(f'roof{roof_c}', roof_c, roof_sh), w + 0.25, 1.4, 0.7, (x, y, h))
     glass = M('glass', '#FFE6A8', em=True)
     frame = M('frame', '#FFF4E2', '#E8D6BC')
-    box(f'{name}_door', M(f'door{door}', door, '#5A3420'), (0.34, 0.06, 0.62), (x, y - 0.61, 0.31))
-    for wx in (-w * 0.27, w * 0.27):
-        for wz in ([h * 0.68] if h < 1.9 else [h * 0.45, h * 0.78]):
-            if abs(wx) < 0.3 and wz < 0.8:
-                continue
+    # Door sized for the chibi cast (~1.05 tall): 1.2 tall, 0.56 wide, with frame, step and knob
+    box(f'{name}_doorframe', M('frame', '#FFF4E2', '#E8D6BC'), (0.66, 0.05, 1.27), (x, y - 0.605, 0.635))
+    box(f'{name}_door', M(f'door{door}', door, '#5A3420'), (0.56, 0.06, 1.2), (x, y - 0.62, 0.6))
+    box(f'{name}_doorpanel', M(f'doorp{door}', '#8E5A3A', '#6E4228'), (0.36, 0.02, 0.36), (x, y - 0.655, 0.86), outline=False)
+    blob(f'{name}_knob', M('gold', '#F2C14E', '#D9A532'), (0.03, 0.025, 0.03), (x + 0.19, y - 0.665, 0.58))
+    box(f'{name}_step', M('step', '#D2C2AA', '#B5A48B'), (0.8, 0.25, 0.06), (x, y - 0.72, 0.03))
+    for wx in (-w * 0.335, w * 0.335):
+        for wz in ([max(h * 0.68, 1.42)] if h < 1.9 else [h * 0.45, h * 0.78]):
             box(f'{name}_wf{wx}{wz}', frame, (0.36, 0.05, 0.36), (x + wx, y - 0.61, wz))
             box(f'{name}_wg{wx}{wz}', glass, (0.27, 0.06, 0.27), (x + wx, y - 0.625, wz), outline=False)
 
@@ -211,7 +214,26 @@ def build_kitchen():
     blob('Pizza_display', M('pizza', '#F2B84B', '#D99A2E'), (0.32, 0.32, 0.03), (1.4, 1.62, 0.95))
 
 
-SETS = {'street': build_street, 'park': build_park, 'home': build_home, 'kitchen': build_kitchen}
+def build_prison():
+    sky('#24303D', '#121820')
+    box('Floor', M('pfloor', '#363D47', '#22272E'), (14, 10, 0.1), (0, 1.5, -0.05), outline=False)
+    stone_mat = M('pwall', '#48525F', '#2C323B')
+    box('BackWall', stone_mat, (14, 0.4, 6), (0, 3.2, 3.0))
+    box('Window_frame', M('wframe', '#1A1D22', '#101216'), (1.8, 0.5, 1.4), (0, 3.2, 4.2))
+    box('Window_glass', M('wglass', '#6BA4D8', em=True), (1.4, 0.55, 1.0), (0, 3.2, 4.2), outline=False)
+    bar_mat = M('bar', '#1A1E24', '#101317')
+    box('Bar_top', bar_mat, (10, 0.14, 0.14), (0, -0.8, 5.0))
+    box('Bar_bot', bar_mat, (10, 0.14, 0.14), (0, -0.8, 0.05))
+    for i in range(-10, 11):
+        box(f'IronBar_{i}', bar_mat, (0.07, 0.07, 5.0), (i * 0.45, -0.8, 2.5))
+    cot_mat = M('cot', '#252B33', '#171B20')
+    box('Cot_frame', cot_mat, (2.2, 1.1, 0.08), (-1.8, 1.8, 0.45))
+    box('Cot_mattress', M('mattress', '#566270', '#3D4650'), (2.1, 1.0, 0.14), (-1.8, 1.8, 0.56))
+    box('Cot_pillow', M('pillow', '#8692A0', '#66717E'), (0.7, 0.8, 0.12), (-2.4, 1.8, 0.68))
+    box('Office_desk', M('desk', '#4A2E1A', '#321E10'), (2.4, 1.2, 0.8), (2.0, 2.0, 0.4))
+
+
+SETS = {'street': build_street, 'park': build_park, 'home': build_home, 'kitchen': build_kitchen, 'prison': build_prison}
 
 
 def build_set(name):

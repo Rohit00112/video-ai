@@ -318,9 +318,15 @@ GESTURES = {
     'G_think': {'upper_arm.R': (-0.25, -0.55, -0.75), 'forearm.R': 'chin', 'upper_arm.L': (0.3, -0.3, -0.85), 'forearm.L': (-0.9, -0.4, 0.15)},
     'G_facepalm': {'upper_arm.R': (-0.3, -0.7, -0.2), 'forearm.R': 'face', 'upper_arm.L': (0.3, 0.05, -1), 'forearm.L': (0.15, -0.15, -1)},
     'G_snap': {'upper_arm.R': (-0.75, -0.5, 0.05), 'forearm.R': (-0.05, -0.45, 1), 'upper_arm.L': (0.3, 0.05, -1), 'forearm.L': (0.15, -0.15, -1)},
+    'G_eat': {'upper_arm.R': (-0.3, -0.75, -0.55), 'forearm.R': 'mouth', 'upper_arm.L': (0.3, 0.05, -1), 'forearm.L': (0.15, -0.15, -1)},
+    'G_eatL': {'upper_arm.L': (0.3, -0.75, -0.55), 'forearm.L': 'mouth', 'upper_arm.R': (-0.3, 0.05, -1), 'forearm.R': (-0.15, -0.15, -1)},
+    'G_carry': {'upper_arm.R': (-0.25, -0.45, -0.85), 'forearm.R': (0.3, -0.95, 0.12), 'upper_arm.L': (0.25, -0.45, -0.85), 'forearm.L': (-0.3, -0.95, 0.12)},
+    'G_pour': {'upper_arm.R': (-0.35, -0.85, -0.15), 'forearm.R': (-0.2, -0.95, 0.12), 'upper_arm.L': (0.3, 0.05, -1), 'forearm.L': (0.15, -0.15, -1)},
     'G_rest': {'upper_arm.R': (-0.3, 0.05, -1), 'forearm.R': (-0.15, -0.15, -1), 'upper_arm.L': (0.3, 0.05, -1), 'forearm.L': (0.15, -0.15, -1)},
 }
 ARM_ORDER = ('upper_arm.R', 'forearm.R', 'upper_arm.L', 'forearm.L')
+# Arms-only gestures key just the arm chain, so they can layer over Walk/Idle (legs keep walking)
+ARMS_ONLY = {'G_carry'}
 
 
 def build_gestures(rig, fps=30):
@@ -354,12 +360,14 @@ def build_gestures(rig, fps=30):
             for key in ARM_ORDER:
                 d = spec[key]
                 bone = f'DEF-{key}'
-                if d in ('chin', 'face'):
-                    head_c = _bone_pos(rig, 'DEF-head') + Vector((0, -0.2, 0.17 if d == 'face' else 0.05))
+                if d in ('chin', 'face', 'mouth'):
+                    head_c = _bone_pos(rig, 'DEF-head') + Vector((0, -0.24 if d == 'mouth' else -0.2, {'face': 0.17, 'chin': 0.05, 'mouth': 0.1}[d]))
                     d = head_c - _bone_pos(rig, bone)
                 d = Vector(d)
                 if gname == 'G_wave' and key == 'forearm.R':
                     d = Vector((d.x - 0.45 * math.sin(ph * 4), d.y, d.z))
+                if (gname, key) in (('G_eat', 'forearm.R'), ('G_eatL', 'forearm.L')):
+                    d = Vector((d.x, d.y, d.z - 0.05 * max(0.0, math.sin(ph * 2))))
                 if gname == 'G_snap' and key == 'forearm.R':
                     d = Vector((d.x - 0.18 * max(0.0, math.sin(ph * 2)) ** 6, d.y, d.z))
                 if gname == 'G_point' and key == 'forearm.R':
@@ -372,10 +380,13 @@ def build_gestures(rig, fps=30):
         rig.animation_data.action = ac
         for frame, rots, hip in samples:
             for pb in keyed:
+                if gname in ARMS_ONLY and not any(k in pb.name for k in ('arm', 'hand', 'shoulder')):
+                    continue
                 pb.rotation_quaternion = rots[pb.name]
                 pb.keyframe_insert('rotation_quaternion', frame=frame)
-            rig.pose.bones['DEF-hips'].location = hip
-            rig.pose.bones['DEF-hips'].keyframe_insert('location', frame=frame)
+            if gname not in ARMS_ONLY:
+                rig.pose.bones['DEF-hips'].location = hip
+                rig.pose.bones['DEF-hips'].keyframe_insert('location', frame=frame)
         made.append(gname)
     rig.animation_data.action = None
     for pb in rig.pose.bones:

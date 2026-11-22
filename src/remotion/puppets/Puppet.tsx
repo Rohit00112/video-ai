@@ -16,7 +16,7 @@ const SKIN_SHADE = '#EFCB93';
 const CHEEK = '#F4A98E';
 const STROKE = 5;
 
-export type PuppetId = 'alex' | 'chloe' | 'mayor' | 'chef' | 'granny';
+export type PuppetId = 'alex' | 'chloe' | 'mayor' | 'chef' | 'granny' | 'ravi' | 'warden' | 'guard';
 type Outfit = 'default' | 'labcoat' | 'tophat';
 
 interface Pose {
@@ -157,6 +157,12 @@ function lookFor(id: PuppetId, outfit: Outfit): Look {
       return { sleeve: '#F8F4E4', sleeveShade: '#CFC8B2', pants: '#2C2833', shoe: '#2F2126', legLen: 1 };
     case 'granny':
       return { sleeve: '#8E5C9E', sleeveShade: '#62407A', pants: '#6E6670', shoe: '#2F2126', legSkin: false, legLen: 0.92 };
+    case 'ravi':
+      return { sleeve: '#E65A1E', sleeveShade: '#B33E0E', pants: '#E65A1E', shoe: '#1A1014', legLen: 1 };
+    case 'warden':
+      return { sleeve: '#1C2A3A', sleeveShade: '#101A24', pants: '#1C2A3A', shoe: '#1A1014', legLen: 1 };
+    case 'guard':
+      return { sleeve: '#364E68', sleeveShade: '#223348', pants: '#2A3A4E', shoe: '#1A1014', legLen: 1 };
   }
 }
 
@@ -225,6 +231,34 @@ const Torso: React.FC<{ id: PuppetId; outfit: Outfit; uid: string }> = ({ id, ou
           <path d="M-72,-130 Q-40,-140 -18,-134 L-26,30 L-82,24 Z" fill={`url(#${uid}-cloth)`} stroke={INK} strokeWidth={STROKE} />
           <path d="M72,-130 Q40,-140 18,-134 L26,30 L82,24 Z" fill={`url(#${uid}-cloth)`} stroke={INK} strokeWidth={STROKE} />
           <path d="M-20,-136 Q-10,-124 0,-132 Q10,-124 20,-136" fill="#FFFFFF" stroke={INK} strokeWidth={3} />
+        </g>
+      );
+    case 'ravi':
+      return (
+        <g>
+          <path d="M-72,-128 Q0,-142 72,-128 L80,4 Q0,16 -80,4 Z" fill={`url(#${uid}-cloth)`} stroke={INK} strokeWidth={STROKE} />
+          <path d="M-18,-136 Q0,-120 18,-136" fill="none" stroke={INK} strokeWidth={4} />
+          <rect x={-24} y={-80} width={48} height={20} rx={4} fill="#FFFFFF" stroke={INK} strokeWidth={2} />
+          <text x={0} y={-66} textAnchor="middle" fill="#141414" fontSize={11} fontWeight={900}>#347</text>
+        </g>
+      );
+    case 'warden':
+      return (
+        <g>
+          <path d="M-74,-128 Q0,-142 74,-128 L80,10 Q0,20 -80,10 Z" fill={`url(#${uid}-cloth)`} stroke={INK} strokeWidth={STROKE} />
+          <path d="M-22,-138 L22,-138 L0,-80 Z" fill="#EAE6DF" stroke={INK} strokeWidth={3} />
+          <polygon points="0,-120 8,-70 0,-60 -8,-70" fill="#C99B32" stroke={INK} strokeWidth={2} />
+          {[-70, -40].map((y) => (
+            <circle key={y} cx={14} cy={y} r={5} fill="#F2C14E" stroke={INK} strokeWidth={2} />
+          ))}
+        </g>
+      );
+    case 'guard':
+      return (
+        <g>
+          <path d="M-72,-128 Q0,-142 72,-128 L80,6 Q0,18 -80,6 Z" fill={`url(#${uid}-cloth)`} stroke={INK} strokeWidth={STROKE} />
+          <rect x={-8} y={-138} width={16} height={142} fill="#243444" />
+          <polygon points="-24,-80 -12,-80 -18,-68" fill="#F2C14E" stroke={INK} strokeWidth={2} />
         </g>
       );
   }
@@ -299,6 +333,32 @@ const Headwear: React.FC<{ id: PuppetId; outfit: Outfit; front: boolean }> = ({ 
       ) : (
         <circle cx={0} cy={-112} r={32} fill="#C9C3BC" stroke={INK} strokeWidth={STROKE} />
       );
+    case 'ravi':
+      return front ? (
+        <path
+          d="M-90,-20 Q-100,-72 -70,-96 L-84,-120 L-48,-112 L-42,-144 L-14,-120 L8,-148 L26,-118 L60,-140 L58,-108 L92,-112 L78,-80 Q102,-54 88,-18 Q70,-64 28,-72 Q-12,-56 -42,-72 Q-72,-60 -90,-20 Z"
+          fill="#1C1816"
+          stroke={INK}
+          strokeWidth={STROKE}
+          strokeLinejoin="round"
+        />
+      ) : null;
+    case 'warden':
+      return front ? (
+        <g>
+          <ellipse cx={0} cy={-76} rx={76} ry={12} fill="#182430" stroke={INK} strokeWidth={STROKE} />
+          <rect x={-46} y={-140} width={92} height={66} rx={4} fill="#1C2A3A" stroke={INK} strokeWidth={STROKE} />
+          <polygon points="0,-126 12,-114 0,-102 -12,-114" fill="#F2C14E" stroke={INK} strokeWidth={2} />
+        </g>
+      ) : null;
+    case 'guard':
+      return front ? (
+        <g>
+          <ellipse cx={0} cy={-78} rx={74} ry={12} fill="#243444" stroke={INK} strokeWidth={STROKE} />
+          <rect x={-44} y={-135} width={88} height={60} rx={4} fill="#30445A" stroke={INK} strokeWidth={STROKE} />
+          <circle cx={0} cy={-112} r={8} fill="#E2C14E" stroke={INK} strokeWidth={2} />
+        </g>
+      ) : null;
   }
 };
 
@@ -538,5 +598,11 @@ function lightenFor(id: PuppetId, outfit: Outfit): string {
       return '#FFFFFF';
     case 'granny':
       return '#A574B6';
+    case 'ravi':
+      return '#FF7A38';
+    case 'warden':
+      return '#2E4258';
+    case 'guard':
+      return '#4D6B8C';
   }
 }

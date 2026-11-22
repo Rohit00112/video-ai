@@ -17,6 +17,7 @@ import { CharacterManager } from '../characters/CharacterManager.js';
 import { AnimationManager } from '../animation/AnimationManager.js';
 import { PhysicsManager } from '../physics/PhysicsManager.js';
 import { PizzaTownEnvironmentManager } from '../environments/PizzaTownEnvironmentManager.js';
+import { PrisonEnvironmentManager } from '../environments/PrisonEnvironmentManager.js';
 import { PostFxPipeline } from './PostFxPipeline.js';
 import { EnvironmentState } from '../../services/scripting/schema.js';
 
@@ -135,6 +136,10 @@ export class SceneManager {
     if (themes.has('pizza_town')) {
       const w = new PizzaTownEnvironmentManager(this.scene, this.assets);
       this.worldUpdaters.push((c) => w.update(c.env, c.sceneProgress, c.sceneElapsedSeconds, c.globalSeconds));
+    }
+    if (themes.has('prison')) {
+      const w = new PrisonEnvironmentManager(this.scene, this.assets);
+      this.worldUpdaters.push((c) => w.update(c.env.prisonState, c.globalSeconds));
     }
 
     const storytime = plan.concept.visualStyle === 'storytime';

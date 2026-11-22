@@ -21,6 +21,9 @@ export const CharacterIdSchema = z.enum([
   'granny',
   'worker',
   'chef',
+  'ravi',
+  'warden',
+  'guard',
 ]);
 export type CharacterId = z.infer<typeof CharacterIdSchema>;
 
@@ -169,6 +172,9 @@ export const ThoughtBubbleKindSchema = z.enum([
   'one_boat',
   'map_pins',
   'lighthouse_icon',
+  'puzzle',
+  'clock',
+  'zzz',
 ]);
 export type ThoughtBubbleKind = z.infer<typeof ThoughtBubbleKindSchema>;
 
@@ -258,6 +264,7 @@ export const EnvironmentStateSchema = z.object({
       'dream_city',
       'pizza_town',
       'live_footage',
+      'prison',
     ])
     .optional(),
   showHeroBoat: z.boolean().optional(),
@@ -378,6 +385,22 @@ export const EnvironmentStateSchema = z.object({
       signLines: z.array(z.string()).optional(),
     })
     .optional(),
+  // Prison state (Infinite IQ in Prison)
+  prisonState: z
+    .object({
+      zone: z.enum(['cell', 'laundry', 'warden_office', 'gates', 'city_street', 'return_gate']).default('cell'),
+      barsVisible: z.boolean().default(true),
+      rainStreaks: z.boolean().default(true),
+      cellLightOn: z.boolean().default(false),
+      puzzleSolved: z.boolean().default(false),
+      gatesOpenRatio: z.number().min(0).max(1).default(0),
+      laundrySearchlight: z.boolean().default(false),
+      searchlightAngle: z.number().default(0),
+      evidenceBoardActive: z.boolean().default(false),
+      clockSpeed: z.number().default(1.0),
+      intercomBuzzing: z.boolean().default(false),
+    })
+    .optional(),
 });
 export type EnvironmentState = z.infer<typeof EnvironmentStateSchema>;
 
@@ -392,7 +415,7 @@ export const PuppetExpressionSchema = z.enum([
 ]);
 export type PuppetExpression = z.infer<typeof PuppetExpressionSchema>;
 export const PuppetBeatSchema = z.object({
-  id: z.enum(['alex', 'chloe', 'mayor', 'chef', 'granny']),
+  id: z.enum(['alex', 'chloe', 'mayor', 'chef', 'granny', 'ravi', 'warden', 'guard']),
   /** Feet position as a fraction of the frame (x 0..1, y 0..1) */
   x: z.number(),
   y: z.number(),
@@ -512,6 +535,12 @@ export const SceneScriptSchema = z.object({
       set: z.enum(['street', 'park', 'home', 'kitchen']),
       camera: z.any().optional(),
       chars: z.array(z.any()),
+      /** Props (blender/lib/toonprops.py): placed, held (hand-attached), swapped, animated; times are scene ratios */
+      props: z.array(z.any()).optional(),
+      /** Time-of-day grade rendered in Blender (glows stay bright) */
+      time: z.enum(['day', 'evening', 'night', 'party']).optional(),
+      /** Set-piece name prefixes to hide for this shot (e.g. a tree blocking the camera) */
+      hide: z.array(z.string()).optional(),
       /** Frozen-time grade between scene ratios (ripple on the snap / unfreeze) */
       freeze: z.object({ from: z.number().min(0).max(1).optional(), to: z.number().min(0).max(1).optional() }).optional(),
     })

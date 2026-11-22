@@ -58,6 +58,22 @@ interface Beat {
   emotion?: SceneScript['emotion'];
 }
 
+// Shared prop setups (continuity: Chloe's frozen coffee splash + the frozen pigeon recur)
+const CUP = (char: string, from = 0) => [
+  { id: `${char}_cup`, type: 'coffee_cup', scale: 1.25, hold: { char, bone: 'DEF-hand.R', from, offset: [0, -0.03, -0.06], rot: [0, 0, 0] } },
+];
+const PIGEON_FROZEN = (x: number, y: number, z: number, rz = 0) => ({ id: 'pigeon', type: 'pigeon', loc: [x, y, z], rot: [0, -10, rz], scale: 1.3, anim: { type: 'flap', until: 0.01 } });
+const PARTY = [
+  { id: 'bunting', type: 'bunting', params: { a: [-1.7, 1.4, 1.95], b: [1.7, 1.4, 1.95], n: 11, sag: 0.18 } },
+  { id: 'balloon1', type: 'balloon', loc: [-0.95, 0.9, 0], params: { color: '#F28AA0', shade: '#D96C84', h: 1.25 } },
+  { id: 'balloon2', type: 'balloon', loc: [1.0, 1.0, 0], params: { color: '#7FC8F8', shade: '#5EA8D8', h: 1.4 } },
+  { id: 'balloon3', type: 'balloon', loc: [-0.75, 1.1, 0], params: { color: '#FFD45E', shade: '#E5B840', h: 1.5 } },
+];
+// Kitchen pizza: table between Alex and Chef, missing wedge faces Alex (θ ≈ 197°)
+const PIZZA_C = [0.0, 0.15, 0.455];
+const TH = (197.5 * Math.PI) / 180;
+const SLICE_REST = [PIZZA_C[0] + 0.23 * Math.cos(TH), PIZZA_C[1] + 0.23 * Math.sin(TH), PIZZA_C[2] + 0.02];
+
 const BEATS: Beat[] = [
   {
     id: 'ft-01-hook',
@@ -78,6 +94,10 @@ const BEATS: Beat[] = [
         { id: 'chef', y: 0.7, path: [[0, 1.3, 0.7, -90], [0.38, 0.52, 0.7, -90]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.38, freeze: true }], blinkUntil: 0.38 },
         { id: 'alex', x: 0, y: -0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.26, action: 'G_snap' }, { at: 0.5, action: 'G_cheer' }] },
       ],
+      props: [
+        ...CUP('chloe'),
+        { id: 'pigeon', type: 'pigeon', scale: 1.4, rot: [0, -8, 0], path: [[0, -1.2, 0.6, 1.5], [0.38, -0.42, 0.6, 1.42]], anim: { type: 'flap', until: 0.38 } },
+      ],
     },
   },
   {
@@ -91,10 +111,17 @@ const BEATS: Beat[] = [
     shot: {
       set: 'kitchen',
       freeze: {},
-      camera: MID,
+      camera: CAM([0, -5.0, 1.35], [0, 0, 0.55], [-0.1, -4.3, 1.25], [-0.1, 0, 0.55]),
       chars: [
-        { id: 'chef', x: 0.45, y: 0.35, face: -35, track: [{ at: 0, action: 'G_point', hold: 20 }], blink: false },
-        { id: 'alex', speaker: true, path: [[0, -1.1, 0.0, 90], [0.45, -0.25, 0.0, 30]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.45, action: 'Interact' }, { at: 0.75, action: 'G_cheer' }] },
+        { id: 'chef', x: 0.48, y: 0.42, face: -40, track: [{ at: 0, action: 'G_point', hold: 20 }], blink: false },
+        { id: 'alex', speaker: true, path: [[0, -1.15, 0.0, 90], [0.4, -0.33, 0.02, 55]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.4, action: 'Interact' }, { at: 0.56, action: 'G_eatL' }, { at: 0.86, action: 'G_cheer' }] },
+      ],
+      props: [
+        { id: 'table', type: 'table', loc: [PIZZA_C[0], PIZZA_C[1], 0] },
+        { id: 'pizza', type: 'pizza', loc: PIZZA_C, rot: [0, 0, 175], scale: 1.35, params: { missing: 1 } },
+        { id: 'slice', type: 'slice', loc: SLICE_REST, rot: [0, 0, 197.5], scale: 1.35, show: [0, 0.68], hold: { char: 'alex', bone: 'DEF-hand.L', from: 0.5, aimMouth: true } },
+        { id: 'slice_b', type: 'slice_bitten', scale: 1.35, hold: { char: 'alex', bone: 'DEF-hand.L', from: 0.68, aimMouth: true } },
+        { id: 'crumbs', type: 'crumbs', loc: [-0.24, -0.02, 0.62], show: [0.69, null], anim: { type: 'fall', from: 0.69, speed: 0.9 } },
       ],
     },
   },
@@ -109,11 +136,12 @@ const BEATS: Beat[] = [
     shot: {
       set: 'street',
       freeze: {},
-      camera: CAM([0, -4.6, 0.85], [0, 0, 0.64], [0, -4.0, 0.84], [0, 0, 0.66]),
+      camera: CAM([0, -4.6, 0.85], [0, 0, 0.64], [0, -4.0, 0.84], [0.05, 0, 0.66]),
       chars: [
-        { id: 'chloe', x: 0.36, y: 0.05, face: -35, track: [{ at: 0, action: 'G_cross', hold: 10 }], blink: false },
-        { id: 'alex', x: -0.36, y: 0, face: 35, speaker: true, track: [{ at: 0, action: 'G_hips' }, { at: 0.55, action: 'G_think' }, { at: 0.8, action: 'G_cheer' }] },
+        { id: 'chloe', x: -0.3, y: 0.1, face: 55, track: [{ at: 0, action: 'Walk_Loop', hold: 8 }], blink: false },
+        { id: 'alex', x: 0.36, y: -0.05, face: -55, speaker: true, track: [{ at: 0, action: 'G_hips' }, { at: 0.3, action: 'G_wave' }, { at: 0.8, action: 'G_cheer' }] },
       ],
+      props: [...CUP('chloe'), PIGEON_FROZEN(0.05, 0.6, 1.42)],
     },
   },
   {
@@ -130,9 +158,14 @@ const BEATS: Beat[] = [
       freeze: {},
       camera: CAM([-0.3, -5.8, 0.9], [0, 0, 0.62], [0.3, -5.2, 0.86], [0, 0, 0.62]),
       chars: [
-        { id: 'mayor', x: 0.5, y: 0.45, face: -20, track: [{ at: 0, action: 'G_cheer', hold: 12 }], blink: false },
+        { id: 'mayor', x: 0.42, y: 0.45, face: -20, track: [{ at: 0, action: 'G_cheer', hold: 12 }], blink: false },
         { id: 'granny', x: -0.55, y: 0.5, face: 25, track: [{ at: 0, action: 'G_wave', hold: 15 }], blink: false },
         { id: 'alex', x: 0, y: -0.1, face: 0, speaker: true, track: [{ at: 0, action: 'Dance_Loop' }] },
+      ],
+      props: [
+        ...PARTY,
+        { id: 'flag', type: 'flag', hold: { char: 'mayor', bone: 'DEF-hand.R', from: 0, offset: [0, 0, -0.02], rot: [0, 0, 0] } },
+        { id: 'confetti', type: 'confetti', loc: [0, 0.2, 0], params: { n: 80, box: [1.9, 1.0, 1.1], z0: 0.55, seed: 4 } },
       ],
     },
   },
@@ -151,8 +184,13 @@ const BEATS: Beat[] = [
       freeze: {},
       camera: CAM([0, -4.8, 0.85], [0, 0, 0.62], [0, -4.3, 0.84], [0, 0, 0.64]),
       chars: [
-        { id: 'granny', x: 0.36, y: 0.1, face: -35, track: [{ at: 0, action: 'G_think', hold: 8 }], blink: false },
-        { id: 'alex', x: -0.36, y: 0, face: 35, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.62, action: 'G_shrug' }] },
+        { id: 'granny', x: 0.42, y: 0.15, face: -60, track: [{ at: 0, action: 'G_pour', hold: 8 }], blink: false },
+        { id: 'alex', x: -0.4, y: 0, face: 40, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.62, action: 'G_shrug' }] },
+      ],
+      props: [
+        { id: 'teatable', type: 'tea_set', loc: [0.05, 0.12, 0] },
+        { id: 'teapot', type: 'teapot', scale: 1.4, hold: { char: 'granny', bone: 'DEF-hand.R', from: 0, offset: [0, 0, 0], rot: [0, 32, 240] } },
+        { id: 'stream', type: 'tea_stream', params: { fromProp: 'teapot', fromLocal: [0.225, 0, 0.02], cupOn: 'teatable' } },
       ],
     },
   },
@@ -171,10 +209,15 @@ const BEATS: Beat[] = [
       freeze: {},
       camera: CAM([0, -4.4, 0.8], [0, 0, 0.62], [0, -6.2, 0.95], [0, 0, 0.6]),
       chars: [
-        { id: 'chloe', x: -0.95, y: 0.7, face: 90, track: [{ at: 0, action: 'Walk_Loop', hold: 6 }], blink: false },
-        { id: 'chef', x: 1.05, y: 0.9, face: -60, track: [{ at: 0, action: 'G_point', hold: 20 }], blink: false },
+        { id: 'chloe', x: -0.95, y: 0.7, face: 90, track: [{ at: 0, action: 'Walk_Loop', hold: 8 }], blink: false },
+        { id: 'chef', x: 1.05, y: 0.9, face: -60, track: [{ at: 0, action: 'G_cheer', hold: 12 }], blink: false },
         { id: 'mayor', x: -0.15, y: 1.6, face: 10, track: [{ at: 0, action: 'G_wave', hold: 18 }], blink: false },
         { id: 'alex', x: -0.05, y: -0.15, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.55, action: 'G_facepalm' }] },
+      ],
+      props: [
+        ...CUP('chloe'),
+        { id: 'dough', type: 'dough', hold: { char: 'chef', bone: 'DEF-hand.R', from: 0, offset: [-0.12, 0, 0.2], rot: [12, -8, 0] } },
+        PIGEON_FROZEN(0.4, 0.6, 1.25, 160),
       ],
     },
   },
@@ -198,6 +241,11 @@ const BEATS: Beat[] = [
         { id: 'granny', x: 0.2, y: 0.9, face: -5, track: [{ at: 0, action: 'G_think', hold: 8 }, { at: 0.47, action: 'Dance_Loop' }], blinkFrom: 0.47 },
         { id: 'alex', x: -0.05, y: -0.1, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.3, action: 'G_snap' }, { at: 0.55, action: 'Dance_Loop' }] },
       ],
+      props: [
+        ...PARTY,
+        { id: 'flag', type: 'flag', hold: { char: 'mayor', bone: 'DEF-hand.R', from: 0, offset: [0, 0, -0.02], rot: [0, 0, 0] } },
+        { id: 'confetti', type: 'confetti', loc: [0, 0.2, 0], params: { n: 90, box: [1.9, 1.0, 1.2], z0: 0.6, seed: 4 }, anim: { type: 'fall', from: 0.42, speed: 0.32 } },
+      ],
     },
   },
   {
@@ -213,6 +261,7 @@ const BEATS: Beat[] = [
       set: 'street',
       camera: CAM([0, -3.9, 0.85], [0, 0, 0.7], [0, -3.4, 0.86], [0, 0, 0.72]),
       chars: [{ id: 'alex', x: 0, y: 0, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.35, action: 'G_point' }] }],
+      props: [{ id: 'pigeon', type: 'pigeon', scale: 1.3, rot: [0, -8, 0], path: [[0, -0.9, 0.5, 1.5], [1, 0.9, 0.5, 1.7]], anim: { type: 'flap' } }],
     },
   },
 ];

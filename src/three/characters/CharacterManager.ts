@@ -167,6 +167,30 @@ const CHARACTER_PROFILES: Record<CharacterId, CharacterVisualProfile> = {
     hairColor: '#3B281B',
     hasGoldButtons: true,
   },
+  ravi: {
+    id: 'ravi',
+    torsoColor: '#E65A1E',
+    torsoShade: '#B33E0E',
+    hairStyle: 'spiky',
+    hairColor: '#1A1817',
+    hasPocket: true,
+  },
+  warden: {
+    id: 'warden',
+    torsoColor: '#1C2A3A',
+    torsoShade: '#101A24',
+    hairStyle: 'short_round',
+    hairColor: '#7A828A',
+    hasGoldButtons: true,
+  },
+  guard: {
+    id: 'guard',
+    torsoColor: '#364E68',
+    torsoShade: '#223348',
+    hairStyle: 'short_round',
+    hairColor: '#2B221C',
+    striped: true,
+  },
 };
 
 interface CharacterRig {
@@ -216,6 +240,9 @@ export class CharacterManager {
       'granny',
       'worker',
       'chef',
+      'ravi',
+      'warden',
+      'guard',
     ];
     for (const id of ids) {
       this.rigs.set(id, this.createRig(CHARACTER_PROFILES[id]));

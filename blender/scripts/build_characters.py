@@ -25,6 +25,9 @@ LOOKS = {
     'mayor': dict(top='#F3EACB', top_sh='#D6C9A0', pants='#F0E6C4', pants_sh='#D3C69D', shoe='#5A2E1E', hair='#2E2420', hair_sh='#1E1714', style='hat', glasses=True),
     'chef': dict(top='#F8F4E4', top_sh='#D9D2BC', pants='#2C2833', pants_sh='#1C1A22', shoe='#2F2126', hair='#2E2420', hair_sh='#1E1714', style='chef'),
     'granny': dict(top='#8E5C9E', top_sh='#6B4479', pants='#4A3550', pants_sh='#35253A', shoe='#2F2126', hair='#C9C3BC', hair_sh='#A39C94', style='granny', dress=True),
+    'ravi': dict(top='#E65A1E', top_sh='#B33E0E', pants='#E65A1E', pants_sh='#B33E0E', shoe='#1A1014', hair='#1E1A18', hair_sh='#12100E', style='spiky'),
+    'warden': dict(top='#1C2A3A', top_sh='#101A24', pants='#1C2A3A', pants_sh='#101A24', shoe='#1A1014', hair='#7A828A', hair_sh='#555C64', style='hat'),
+    'guard': dict(top='#364E68', top_sh='#223348', pants='#2A3A4E', pants_sh='#1A2633', shoe='#1A1014', hair='#2B221C', hair_sh='#1A1410', style='hat'),
 }
 
 

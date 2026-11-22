@@ -11,3 +11,6 @@ output/branding/
 output/reports/
 public/audio/
 public/footage/
+__pycache__/
+*.pyc
+*.log

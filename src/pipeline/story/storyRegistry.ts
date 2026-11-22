@@ -12,8 +12,10 @@ import { PIZZA_MONEY_CONCEPT, PIZZA_MONEY_SCENES } from './pizzaMoneyStory.js';
 import { INFINITE_IQ_CONCEPT, INFINITE_IQ_SCENES } from './infiniteIqStory.js';
 import { PENNY_DOUBLE_CONCEPT, PENNY_DOUBLE_SCENES } from './pennyDoubleStory.js';
 import { FIVE_HUNDRED_IQ_CONCEPT, FIVE_HUNDRED_IQ_SCENES } from './fiveHundredIqStory.js';
+import { EVERYONE_GONE_CONCEPT, EVERYONE_GONE_SCENES } from './everyoneGoneStory.js';
 import { FREEZE_TIME_CONCEPT, FREEZE_TIME_SCENES } from './freezeTimeStory.js';
 import { FIVE_HUNDRED_IQ_PUPPET_CONCEPT, FIVE_HUNDRED_IQ_PUPPET_SCENES } from './fiveHundredIqPuppetStory.js';
+import { PRISON_IQ_CONCEPT, PRISON_IQ_SCENES } from './prisonIqStory.js';
 
 export interface RegisteredStory {
   id: string;
@@ -87,6 +89,11 @@ export const STORY_REGISTRY: Record<string, RegisteredStory> = {
     concept: FIVE_HUNDRED_IQ_CONCEPT,
     scenes: FIVE_HUNDRED_IQ_SCENES,
   },
+  [EVERYONE_GONE_CONCEPT.id]: {
+    id: EVERYONE_GONE_CONCEPT.id,
+    concept: EVERYONE_GONE_CONCEPT,
+    scenes: EVERYONE_GONE_SCENES,
+  },
   [FREEZE_TIME_CONCEPT.id]: {
     id: FREEZE_TIME_CONCEPT.id,
     concept: FREEZE_TIME_CONCEPT,
@@ -96,6 +103,11 @@ export const STORY_REGISTRY: Record<string, RegisteredStory> = {
     id: FIVE_HUNDRED_IQ_PUPPET_CONCEPT.id,
     concept: FIVE_HUNDRED_IQ_PUPPET_CONCEPT,
     scenes: FIVE_HUNDRED_IQ_PUPPET_SCENES,
+  },
+  [PRISON_IQ_CONCEPT.id]: {
+    id: PRISON_IQ_CONCEPT.id,
+    concept: PRISON_IQ_CONCEPT,
+    scenes: PRISON_IQ_SCENES,
   },
 };
 

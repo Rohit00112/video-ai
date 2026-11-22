@@ -31,11 +31,22 @@ function shotSpec(storyId: string, cs: CompiledScene, fps: number) {
     frames: n,
     fps,
     set: shot.set,
+    time: shot.time,
+    hide: shot.hide,
     camera: shot.camera,
     out: `public/footage/${storyId}/${cs.scene.id}.mp4`,
+    props: (shot.props ?? []).map((p: any) => ({
+      ...p,
+      show: p.show?.map((r: number | null) => (r === null ? null : fr(r))),
+      hold: p.hold ? { ...p.hold, from: fr(p.hold.from ?? 0) } : undefined,
+      anim: p.anim
+        ? { ...p.anim, ...(p.anim.until !== undefined ? { until: fr(p.anim.until) } : {}), ...(p.anim.from !== undefined ? { from: fr(p.anim.from) } : {}) }
+        : undefined,
+      path: p.path?.map((q: number[]) => [fr(q[0]), q[1], q[2], q[3]]),
+    })),
     chars: shot.chars.map((c: any) => ({
       ...c,
-      track: (c.track ?? []).map((t: any) => ({ ...t, start: fr(t.at ?? 0) })),
+      track: (c.track ?? []).map((t: any) => ({ ...t, start: fr(t.at ?? 0), ...(t.end !== undefined ? { end: fr(t.end) } : {}) })),
       path: c.path?.map((p: number[]) => [fr(p[0]), p[1], p[2], p[3]]),
       blinkUntil: c.blinkUntil !== undefined ? fr(c.blinkUntil) : undefined,
       blinkFrom: c.blinkFrom !== undefined ? fr(c.blinkFrom) : undefined,
