@@ -230,10 +230,66 @@ def build_prison():
     box('Cot_frame', cot_mat, (2.2, 1.1, 0.08), (-1.8, 1.8, 0.45))
     box('Cot_mattress', M('mattress', '#566270', '#3D4650'), (2.1, 1.0, 0.14), (-1.8, 1.8, 0.56))
     box('Cot_pillow', M('pillow', '#8692A0', '#66717E'), (0.7, 0.8, 0.12), (-2.4, 1.8, 0.68))
-    box('Office_desk', M('desk', '#4A2E1A', '#321E10'), (2.4, 1.2, 0.8), (2.0, 2.0, 0.4))
 
 
-SETS = {'street': build_street, 'park': build_park, 'home': build_home, 'kitchen': build_kitchen, 'prison': build_prison}
+def build_warden_office():
+    sky('#3A2A1E', '#1C140E')
+    box('Floor', M('ofloor', '#543621', '#3B2414'), (14, 10, 0.1), (0, 1.5, -0.05), outline=False)
+    wood_mat = M('owall', '#63432B', '#48301D')
+    box('BackWall', wood_mat, (14, 0.4, 6), (0, 3.2, 3.0))
+    box('W_desk', M('wdesk', '#3B2011', '#26140A'), (2.6, 1.3, 0.8), (0.0, 1.2, 0.4))
+    box('W_chair', M('wchair', '#1A1C22', '#101216'), (0.8, 0.8, 1.3), (0.0, 2.2, 0.65))
+    box('Bookshelf', M('bshelf', '#4A2D19', '#321D0E'), (1.8, 0.5, 3.2), (-2.8, 2.8, 1.6))
+    box('Book1', M('b1', '#9E2A2B', em=True), (0.3, 0.35, 0.4), (-2.8, 2.7, 0.8), outline=False)
+    box('Book2', M('b2', '#335C67', em=True), (0.3, 0.35, 0.4), (-2.8, 2.7, 1.6), outline=False)
+    box('Book3', M('b3', '#E09F3E', em=True), (0.3, 0.35, 0.4), (-2.8, 2.7, 2.4), outline=False)
+    # Banker's lamp on desk
+    box('Lamp_base', M('lbase', '#D4AF37', '#AA8C2C'), (0.16, 0.16, 0.04), (0.85, 1.2, 0.82))
+    box('Lamp_stem', M('lstem', '#D4AF37', '#AA8C2C'), (0.04, 0.04, 0.28), (0.85, 1.2, 0.96))
+    box('Lamp_shade', M('lshade', '#1B4332', em=True), (0.28, 0.14, 0.12), (0.85, 1.2, 1.12), outline=False)
+
+
+def build_laundry():
+    sky('#222C38', '#141A22')
+    box('Floor', M('laundry_floor', '#4A5568', '#323B4A'), (14, 10, 0.1), (0, 1.5, -0.05), outline=False)
+    box('BackWall', M('laundry_wall', '#718096', '#4A5568'), (14, 0.4, 6), (0, 3.2, 3.0))
+    # Washers
+    w_mat = M('washer', '#EDF2F7', '#CBD5E0')
+    door_mat = M('wdoor', '#4A5568', '#2D3748')
+    glass_mat = M('wglass', '#63B3ED', em=True)
+    for i, x in enumerate((-2.2, -0.7, 0.8, 2.3)):
+        box(f'Washer_{i}', w_mat, (1.1, 1.1, 1.4), (x, 2.2, 0.7))
+        box(f'WasherDoor_{i}', door_mat, (0.7, 0.1, 0.7), (x, 1.62, 0.75))
+        box(f'WasherGlass_{i}', glass_mat, (0.5, 0.12, 0.5), (x, 1.61, 0.75), outline=False)
+    # Laundry hamper
+    box('Hamper', M('hamper', '#D69E2E', '#975A16'), (1.0, 0.8, 0.9), (-1.8, 0.6, 0.45))
+    box('Jumpsuits', M('jumpsuits', '#DD6B20', em=True), (0.85, 0.65, 0.3), (-1.8, 0.6, 0.9), outline=False)
+
+
+def build_prison_gates():
+    sky('#5D7896', '#2A3A4E')
+    box('Ground', M('gates_ground', '#3A424D', '#242930'), (20, 20, 0.1), (0, 1.5, -0.05), outline=False)
+    pillar_mat = M('pillar', '#5A6577', '#3D4552')
+    box('Pillar_L', pillar_mat, (1.8, 1.8, 6.0), (-3.2, 2.0, 3.0))
+    box('Pillar_R', pillar_mat, (1.8, 1.8, 6.0), (3.2, 2.0, 3.0))
+    bar_mat = M('gate_bar', '#1A1E24', '#101317')
+    box('Gate_L', bar_mat, (2.6, 0.14, 4.5), (-1.4, 2.0, 2.25))
+    box('Gate_R', bar_mat, (2.6, 0.14, 4.5), (1.4, 2.0, 2.25))
+    hazard_mat = M('hazard', '#ECC94B', em=True)
+    box('Hazard_L', hazard_mat, (2.4, 0.18, 0.25), (-1.4, 1.99, 0.4), outline=False)
+    box('Hazard_R', hazard_mat, (2.4, 0.18, 0.25), (1.4, 1.99, 0.4), outline=False)
+
+
+SETS = {
+    'street': build_street,
+    'park': build_park,
+    'home': build_home,
+    'kitchen': build_kitchen,
+    'prison': build_prison,
+    'office': build_warden_office,
+    'laundry': build_laundry,
+    'gates': build_prison_gates,
+}
 
 
 def build_set(name):

@@ -38,14 +38,18 @@ function sceneEventTimes(s: ProductionPlan['scenes'][number], fps: number): numb
   if (sc.experimentOverlay?.gauge) {
     for (let t = 0; t < dur; t += 1) times.push(t);
   }
+  // Pre-rendered 3D Blender footage features continuous camera dollies and character animation
+  if (sc.footage) {
+    for (let t = 0; t < dur; t += 1) times.push(t);
+  }
   return times;
 }
 
 /** Storytime (reference) videos are calmer and longer: the reference Short runs 63 s with no title card */
 export const STORYTIME_LIMITS = {
   maxTotalSeconds: 65,
-  maxSceneSeconds: 5.0,
-  maxEventGapSeconds: 3.5,
+  maxSceneSeconds: 8.0,
+  maxEventGapSeconds: 4.5,
   payoffBySeconds: 7.0,
   maxHookTitleChars: 16,
 } as const;

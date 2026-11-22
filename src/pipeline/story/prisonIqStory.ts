@@ -11,10 +11,11 @@ export const PRISON_IQ_CONCEPT: StoryConcept = {
   supportingCharacters: [
     'Warden (stern authority in dark navy suit, stunned by Ravi’s puzzle solution)',
     'Guard (slate-blue uniform, saved from a falling beam)',
-    'Worker (friendly city resident whose ultra-slow conversation puts Ravi to sleep)',
+    'Mayor (citizen talking in painfully slow motion)',
+    'Chloe (friend talking in slow syrup)',
   ],
   environment:
-    'Bold-outlined low-poly 3D Prison: dark stone brick cell with barred window & dripping rain, industrial laundry room with sweeping searchlight, mahogany warden’s office with puzzle box, massive sliding iron security gates, and sleepy city street.',
+    'Procedural cel-shaded 3D Prison sets: dark stone brick cell with barred window & rain, industrial laundry room, mahogany warden’s office with puzzle box, massive iron security gates, and city street.',
   conflict: 'Escaping prison is easy (11 minutes), but surviving the unbearable slow-motion outside world is impossible.',
   escalation:
     'Count 347 bricks by rain echo → map guard patrols & laundry blind spot → 11-minute escape ready → solve warden puzzle → prove 10-year cold case innocence → gates open → outside world talks like slow syrup → boredom hits 100% → voluntary return.',
@@ -22,7 +23,7 @@ export const PRISON_IQ_CONCEPT: StoryConcept = {
   ending:
     'Ravi walks back through the rain and presses the prison intercom to return—the only place complex enough to keep his brain alive.',
   emotionalObjective:
-    'A gripping, atmospheric ~42-second storytime Short with moody cell lighting, tactical prison blueprints, satisfying genius deductions, and an ironic intellectual twist.',
+    'A gripping, atmospheric ~38-second storytime Short with moody cell lighting, tactical prison blueprints, satisfying genius deductions, and an ironic intellectual twist.',
   visualStorytellingOpportunities: [
     'Night rain dripping with echo rings counting 347 bricks on HUD gauge',
     'Sweeping searchlight in laundry room revealing the safe blind spot',
@@ -69,961 +70,366 @@ const BASE_PRISON_ENV = {
 
 const V = { stability: 0.55, similarityBoost: 0.82, style: 0.32, speed: 0.98 };
 
-export const PRISON_IQ_SCENES: SceneScript[] = [
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 1 — HOOK (0–3.4s): "What if infinite IQ in prison?"
-  // ═══════════════════════════════════════════════════════════════
+const CAM = (from: number[], look: number[], to?: number[], lookTo?: number[], lens = 70, dof?: object) => ({
+  from: { loc: from, look, lens },
+  to: { loc: to ?? from, look: lookTo ?? look, lens },
+  ...(dof ? { dof } : {}),
+});
+
+type Shot = NonNullable<SceneScript['shot']>;
+
+interface Beat {
+  id: string;
+  title: string;
+  seconds: number;
+  narration: string;
+  highlights: string[];
+  shot: Shot;
+  gauge?: { label: string; startVal: number; endVal: number; suffix?: string };
+  stamp?: { text: string; color: 'red' | 'green'; atRatio: number };
+  topTitle?: string;
+  topTitleTone?: 'green' | 'yellow' | 'red';
+  music?: SceneScript['musicEnergy'];
+  emotion?: SceneScript['emotion'];
+  sfx?: SceneScript['soundEffects'];
+  pad?: number;
+}
+
+const BEATS: Beat[] = [
+  // 1. Hook
   {
-    sceneNumber: 1,
     id: 'prison-01-hook',
     title: 'Hook — Infinite IQ In Prison',
-    targetDurationSeconds: 3.4,
-    padAfterSeconds: 0.15,
+    seconds: 3.4,
     narration: 'What if you had infinite IQ, but you were locked in prison?',
+    highlights: ['infinite', 'IQ', 'prison'],
+    topTitle: 'PRISON IQ: ∞ 🧠',
+    topTitleTone: 'yellow',
     emotion: 'curious',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 3.8, 8.6],
-      endPosition: [0.0, 2.4, 5.8],
-      startLookAt: [0.0, 2.8, 0.0],
-      endLookAt: [0.0, 2.2, 0.0],
-      fov: 44,
-      movement: 'dolly_in',
-      impacts: [0.2],
-      handheld: 0.4,
-    },
-    lightingPreset: 'storm_rain',
-    hud: {
-      topTitle: 'PRISON IQ: ∞ 🧠',
-      topTitleTone: 'yellow',
-      emojiBurst: { emoji: '⛓️', atRatio: 0.45, count: 8 },
-      captionHighlights: ['infinite', 'IQ', 'prison'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 0.8],
-        facing: 'front',
-        expression: 'neutral',
-        secondaryExpression: 'proud',
-        expressionSwitchRatio: 0.55,
-        pose: 'hands_on_hips',
-        outfit: 'default',
-        visible: true,
-        scale: 1.05,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'cell',
-        barsVisible: true,
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-q1', anchorCharacter: 'ravi', kind: 'question', startAtRatio: 0.5, endAtRatio: 0.95 },
-    ],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'suspense',
+    sfx: [
       { sfx: 'whoosh', atRatio: 0.05, volume: 0.55 },
       { sfx: 'impact_boom', atRatio: 0.2, volume: 0.7 },
       { sfx: 'splash', atRatio: 0.6, volume: 0.5 },
     ],
-    musicEnergy: 'suspense',
-    transition: 'zoom_punch',
-    visualObjective: 'Dark stone cell with iron bars and rain beam framing Ravi with sharp focused eyes.',
+    shot: {
+      set: 'prison',
+      time: 'night',
+      camera: CAM([0, -3.2, 0.85], [0, 0.3, 0.65], [0, -2.5, 0.82], [0, 0.3, 0.65], 65, { char: 'ravi', fstop: 2.5 }),
+      chars: [
+        { id: 'ravi', x: 0, y: 0.3, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_think' }] },
+      ],
+      props: [{ id: 'bricks', type: 'brick_stack', loc: [0.8, 0.6, 0] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 2 — COUNTING BRICKS (3.4–6.6s): 347 bricks through window
-  // ═══════════════════════════════════════════════════════════════
+  // 2. Night One — Counting 347 Bricks
   {
-    sceneNumber: 2,
     id: 'prison-02-rain-bricks',
-    title: 'Night One — Counting Bricks',
-    targetDurationSeconds: 3.2,
-    padAfterSeconds: 0.15,
-    narration: 'On his first night, Ravi counted 347 bricks through the tiny window...',
+    title: 'Night One — 347 Bricks by Rain Echo',
+    seconds: 4.2,
+    narration: 'On his first night, Ravi counted 347 bricks through the tiny window, just by the echo of rain.',
+    highlights: ['347', 'bricks', 'echo', 'rain'],
+    gauge: { label: 'BRICKS COUNTED', startVal: 0, endVal: 347, suffix: '' },
     emotion: 'suspense',
-    voiceSettings: V,
-    camera: {
-      startPosition: [-0.6, 2.0, 6.2],
-      endPosition: [0.4, 3.4, 5.0],
-      startLookAt: [0.0, 2.2, 0.0],
-      endLookAt: [0.0, 4.8, -4.5],
-      fov: 46,
-      movement: 'low_angle_rise',
-      impacts: [0.35],
-      handheld: 0.3,
-    },
-    lightingPreset: 'storm_rain',
-    experimentOverlay: {
-      gauge: { label: 'BRICKS COUNTED', startVal: 0, endVal: 180, suffix: '' },
-    },
-    hud: {
-      captionHighlights: ['347', 'bricks', 'window'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [-1.2, 0, 0.5],
-        endPosition: [-0.6, 0, -1.0],
-        moveStartRatio: 0.1,
-        moveEndRatio: 0.8,
-        facing: 'front',
-        expression: 'neutral',
-        secondaryExpression: 'excited',
-        expressionSwitchRatio: 0.5,
-        pose: 'pointing',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'cell',
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'driving',
+    sfx: [
       { sfx: 'splash', atRatio: 0.15, volume: 0.65 },
       { sfx: 'tick', atRatio: 0.35, volume: 0.6 },
+      { sfx: 'sparkle_chime', atRatio: 0.75, volume: 0.6 },
     ],
-    musicEnergy: 'driving',
-    transition: 'cut',
-    visualObjective: 'Camera tilts up toward barred high window as water ripples on floor and gauge ticks 0→180.',
+    shot: {
+      set: 'prison',
+      time: 'night',
+      hide: ['IronBar', 'Bar_'],
+      camera: CAM([0.4, -2.4, 0.35], [0, 0.4, 0.95], [-0.2, -1.8, 0.45], [0, 0.4, 1.15], 60, { char: 'ravi', fstop: 2.8 }),
+      chars: [
+        { id: 'ravi', x: 0, y: 0.4, face: 25, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.35, action: 'G_point' }, { at: 0.7, action: 'G_think' }] },
+      ],
+      props: [{ id: 'bricks', type: 'brick_stack', loc: [-0.9, 0.8, 0] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 3 — ECHO OF RAIN (6.6–9.0s): Acoustic calculation
-  // ═══════════════════════════════════════════════════════════════
+  // 3. Morning — Guard Patrols & Laundry Blind Spot
   {
-    sceneNumber: 3,
-    id: 'prison-03-rain-echo',
-    title: 'Rain Echo — Acoustic Calculation',
-    targetDurationSeconds: 2.4,
-    padAfterSeconds: 0.15,
-    narration: '...just by the echo of rain.',
+    id: 'prison-03-guard-patrol',
+    title: 'Morning — Guard Patrols and the Laundry Blind Spot',
+    seconds: 4.2,
+    narration: "By morning, he'd memorized every guard's patrol, every lock, and the one blind spot behind the laundry room.",
+    highlights: ['memorized', 'patrol', 'lock', 'blind spot'],
+    topTitle: 'BLIND SPOT SAFE 🟢',
+    topTitleTone: 'green',
     emotion: 'curious',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.2, 1.8, 5.0],
-      endPosition: [0.0, 1.6, 3.8],
-      startLookAt: [0.0, 1.4, 0.0],
-      endLookAt: [0.0, 1.4, 0.0],
-      fov: 40,
-      movement: 'dolly_in',
-      impacts: [0.3],
-      handheld: 0.2,
-    },
-    lightingPreset: 'storm_rain',
-    experimentOverlay: {
-      gauge: { label: 'BRICKS COUNTED', startVal: 180, endVal: 347, suffix: '' },
-    },
-    hud: {
-      topTitle: '347 BRICKS MAP 🧱',
-      topTitleTone: 'green',
-      emojiBurst: { emoji: '💧', atRatio: 0.45, count: 8 },
-      captionHighlights: ['echo', 'rain'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [-0.6, 0, -1.0],
-        facing: 'front',
-        expression: 'excited',
-        secondaryExpression: 'proud',
-        expressionSwitchRatio: 0.5,
-        pose: 'hands_on_hips',
-        outfit: 'default',
-        visible: true,
-        scale: 1.05,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'cell',
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [],
-    soundEffects: [
-      { sfx: 'splash', atRatio: 0.15, volume: 0.6 },
-      { sfx: 'sparkle_chime', atRatio: 0.6, volume: 0.65 },
-    ],
-    musicEnergy: 'driving',
-    transition: 'whip_pan',
-    visualObjective: 'Extreme focus on puddle ripples as gauge hits 347 bricks with water drop emoji burst.',
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 4 — GUARD PATROLS (9.0–12.0s): Memorized every routine
-  // ═══════════════════════════════════════════════════════════════
-  {
-    sceneNumber: 4,
-    id: 'prison-04-guard-patrol',
-    title: 'Morning — Guard Patrols and Locks',
-    targetDurationSeconds: 3.0,
-    padAfterSeconds: 0.15,
-    narration: "By morning, he'd memorized every guard's patrol and every lock...",
-    emotion: 'curious',
-    voiceSettings: V,
-    camera: {
-      startPosition: [-3.2, 3.4, 7.8],
-      endPosition: [0.0, 3.0, 7.0],
-      startLookAt: [0.0, 1.8, 0.0],
-      endLookAt: [0.0, 1.6, 0.0],
-      fov: 46,
-      movement: 'pan_right',
-      impacts: [0.45],
-      handheld: 0.4,
-    },
-    lightingPreset: 'soft_overcast',
-    hud: {
-      topTitle: 'PATROLS MAPPED 🗺️',
-      topTitleTone: 'yellow',
-      captionHighlights: ['memorized', 'patrol', 'lock'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 1.8],
-        facing: 'front',
-        expression: 'proud',
-        secondaryExpression: 'neutral',
-        expressionSwitchRatio: 0.5,
-        pose: 'hands_on_hips',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-      {
-        characterId: 'guard',
-        position: [-3.8, 0, -2.5],
-        endPosition: [4.0, 0, -2.5],
-        moveStartRatio: 0.05,
-        moveEndRatio: 0.95,
-        facing: 'right',
-        expression: 'neutral',
-        pose: 'idle',
-        outfit: 'default',
-        visible: true,
-        scale: 0.95,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'laundry',
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-lock', anchorCharacter: 'ravi', kind: 'secret_lock', startAtRatio: 0.35, endAtRatio: 0.85 },
-    ],
-    smokePoofs: [],
-    soundEffects: [
-      { sfx: 'whoosh', atRatio: 0.1, volume: 0.5 },
-      { sfx: 'tick', atRatio: 0.5, volume: 0.65 },
-    ],
-    musicEnergy: 'driving',
-    transition: 'cut',
-    visualObjective: 'Guard patrols across cell corridor while secret lock blueprint appears in Ravi’s thought bubble.',
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 5 — LAUNDRY BLIND SPOT (12.0–15.0s): Searchlight & safe zone
-  // ═══════════════════════════════════════════════════════════════
-  {
-    sceneNumber: 5,
-    id: 'prison-05-blind-spot',
-    title: 'Laundry Room — The One Blind Spot',
-    targetDurationSeconds: 3.0,
-    padAfterSeconds: 0.15,
-    narration: '...and the one blind spot behind the laundry room.',
-    emotion: 'curious',
-    voiceSettings: V,
-    camera: {
-      startPosition: [1.5, 3.2, 7.2],
-      endPosition: [-1.5, 2.6, 6.0],
-      startLookAt: [0.0, 1.8, 0.0],
-      endLookAt: [0.0, 1.6, 0.0],
-      fov: 44,
-      movement: 'orbit_hero',
-      impacts: [0.4],
-      handheld: 0.4,
-    },
-    lightingPreset: 'soft_overcast',
-    hud: {
-      topTitle: 'BLIND SPOT SAFE 🟢',
-      topTitleTone: 'green',
-      captionHighlights: ['blind spot', 'laundry'],
-    },
-    chaosHud: {
-      calloutText: '🎯 100% STEALTH',
-      bannerTone: 'cyan_holo',
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 1.8],
-        facing: 'front',
-        expression: 'proud',
-        secondaryExpression: 'excited',
-        expressionSwitchRatio: 0.45,
-        pose: 'hands_on_hips',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'laundry',
-        laundrySearchlight: true,
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-puz-0', anchorCharacter: 'ravi', kind: 'puzzle', startAtRatio: 0.4, endAtRatio: 0.9 },
-    ],
-    smokePoofs: [{ worldPosition: [0.0, 1.2, 0.0], triggerAtRatio: 0.5, scale: 1.2 }],
-    soundEffects: [
+    music: 'driving',
+    sfx: [
       { sfx: 'whoosh', atRatio: 0.2, volume: 0.5 },
-      { sfx: 'sparkle_chime', atRatio: 0.6, volume: 0.6 },
+      { sfx: 'tick', atRatio: 0.55, volume: 0.65 },
     ],
-    musicEnergy: 'driving',
-    transition: 'zoom_punch',
-    visualObjective: 'Sweeping searchlight highlights laundry room floor while Ravi stands undetected in the green blind spot decal.',
+    shot: {
+      set: 'laundry',
+      time: 'day',
+      camera: CAM([-2.4, -4.8, 1.25], [0, 0.6, 0.65], [-1.8, -4.2, 1.15], [0, 0.6, 0.68], 55),
+      chars: [
+        { id: 'guard', path: [[0, -2.5, 0.8, 90], [0.65, 0.2, 0.8, 90], [1, 2.2, 0.8, 90]], track: [{ at: 0, action: 'Walk_Loop' }] },
+        { id: 'ravi', x: -0.6, y: -0.2, face: 15, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_hips' }] },
+      ],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 6 — ELEVEN MINUTES (15.0–17.2s): Could walk out now
-  // ═══════════════════════════════════════════════════════════════
+  // 4. Walk Out In 11 Minutes
   {
-    sceneNumber: 6,
-    id: 'prison-06-eleven-minutes',
+    id: 'prison-04-eleven-minutes',
     title: 'The Choice — Walk Out In 11 Minutes',
-    targetDurationSeconds: 2.2,
-    padAfterSeconds: 0.15,
+    seconds: 2.2,
     narration: 'He could have walked out in eleven minutes.',
+    highlights: ['walked', 'eleven', 'minutes'],
+    topTitle: 'ESCAPE: 11 MIN ⏱️',
+    topTitleTone: 'red',
+    gauge: { label: 'ESCAPE TIME', startVal: 60, endVal: 11, suffix: ' MIN' },
     emotion: 'confident',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 2.6, 8.4],
-      endPosition: [0.0, 2.0, 4.4],
-      startLookAt: [0.0, 2.0, 0.0],
-      endLookAt: [0.0, 1.9, 0.0],
-      fov: 40,
-      movement: 'punch_in',
-      impacts: [0.38],
-      handheld: 0.8,
-    },
-    lightingPreset: 'daylight',
-    experimentOverlay: {
-      gauge: { label: 'ESCAPE TIME', startVal: 60, endVal: 11, suffix: ' MIN' },
-    },
-    hud: {
-      topTitle: 'ESCAPE: 11 MIN ⏱️',
-      topTitleTone: 'red',
-      emojiBurst: { emoji: '⚡', atRatio: 0.4, count: 9 },
-      captionHighlights: ['walked', 'eleven', 'minutes'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 1.2],
-        facing: 'front',
-        expression: 'proud',
-        secondaryExpression: 'neutral',
-        expressionSwitchRatio: 0.5,
-        pose: 'hands_on_hips',
-        secondaryPose: 'shrugging',
-        poseSwitchRatio: 0.5,
-        outfit: 'default',
-        visible: true,
-        scale: 1.08,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'cell',
-        barsVisible: false,
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'suspense',
+    sfx: [
       { sfx: 'impact_boom', atRatio: 0.35, volume: 0.7 },
       { sfx: 'tick', atRatio: 0.5, volume: 0.6 },
     ],
-    musicEnergy: 'suspense',
-    transition: 'cut',
-    visualObjective: 'Punch-in to Ravi smirking as ESCAPE TIME gauge locks at 11 MIN with lightning bolt burst.',
+    shot: {
+      set: 'prison',
+      time: 'day',
+      hide: ['IronBar', 'Bar_'],
+      camera: CAM([0, -2.2, 0.82], [0, 0, 0.65], [0, -1.8, 0.80], [0, 0, 0.65], 70, { char: 'ravi', fstop: 2.2 }),
+      chars: [
+        { id: 'ravi', x: 0, y: 0, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_shrug' }] },
+      ],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 7 — SMARTER MOVE (17.2–19.6s): Brain over escape
-  // ═══════════════════════════════════════════════════════════════
+  // 5. Warden's Impossible Puzzle & Predicted Injury
   {
-    sceneNumber: 7,
-    id: 'prison-07-smarter-move',
-    title: 'The Smarter Move — Brain Over Escape',
-    targetDurationSeconds: 2.4,
-    padAfterSeconds: 0.15,
-    narration: 'Instead, he used his brain to do something smarter.',
-    emotion: 'confident',
-    voiceSettings: V,
-    camera: {
-      startPosition: [-2.0, 2.6, 7.6],
-      endPosition: [0.0, 2.4, 6.2],
-      startLookAt: [0.0, 1.8, -0.5],
-      endLookAt: [0.0, 1.8, -0.5],
-      fov: 44,
-      movement: 'dolly_in',
-      impacts: [0.35],
-      handheld: 0.4,
-    },
-    lightingPreset: 'indoor_cozy',
-    hud: {
-      topTitle: 'SMARTER MOVE 🧠',
-      topTitleTone: 'yellow',
-      captionHighlights: ['brain', 'smarter'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [-1.4, 0, 1.2],
-        facing: 'right',
-        expression: 'proud',
-        secondaryExpression: 'excited',
-        expressionSwitchRatio: 0.5,
-        pose: 'hands_on_hips',
-        secondaryPose: 'pointing',
-        poseSwitchRatio: 0.5,
-        outfit: 'default',
-        visible: true,
-        scale: 1.02,
-      },
-      {
-        characterId: 'warden',
-        position: [1.4, 0, 0.6],
-        facing: 'left',
-        expression: 'neutral',
-        secondaryExpression: 'surprised',
-        expressionSwitchRatio: 0.5,
-        pose: 'idle',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'warden_office',
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-puz-1', anchorCharacter: 'ravi', kind: 'puzzle', startAtRatio: 0.35, endAtRatio: 0.85 },
-    ],
-    smokePoofs: [],
-    soundEffects: [
-      { sfx: 'whoosh', atRatio: 0.15, volume: 0.5 },
-      { sfx: 'ui_click', atRatio: 0.45, volume: 0.6 },
-    ],
-    musicEnergy: 'suspense',
-    transition: 'cut',
-    visualObjective: 'Warden’s mahogany office: Ravi points confidently toward the impossible puzzle box.',
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 8 — WARDEN PUZZLE & INJURY (19.6–23.0s): Solved & saved
-  // ═══════════════════════════════════════════════════════════════
-  {
-    sceneNumber: 8,
-    id: 'prison-08-puzzle-injury',
+    id: 'prison-05-puzzle-injury',
     title: 'Warden Puzzle & Guard Saved',
-    targetDurationSeconds: 3.5,
-    padAfterSeconds: 0.15,
-    narration: "He solved the warden's impossible puzzle, and predicted a guard's injury.",
+    seconds: 4.4,
+    narration: "Instead, he used his brain to do something smarter. He solved the warden's impossible puzzle, and predicted a guard's injury.",
+    highlights: ['smarter', 'impossible', 'puzzle', 'predicted', 'injury'],
+    topTitle: 'PUZZLE SOLVED 🧩',
+    topTitleTone: 'green',
+    stamp: { text: 'SOLVED ✓', color: 'green', atRatio: 0.42 },
     emotion: 'energetic',
-    voiceSettings: V,
-    camera: {
-      startPosition: [-1.8, 2.6, 7.0],
-      endPosition: [1.2, 2.2, 5.8],
-      startLookAt: [0.0, 1.8, -0.5],
-      endLookAt: [0.0, 1.8, -0.5],
-      fov: 44,
-      movement: 'dolly_in',
-      impacts: [0.42],
-      handheld: 0.5,
-    },
-    lightingPreset: 'indoor_cozy',
-    experimentOverlay: {
-      stamp: { text: 'SOLVED ✓', color: 'green', atRatio: 0.42 },
-    },
-    hud: {
-      topTitle: 'PUZZLE SOLVED 🧩',
-      topTitleTone: 'green',
-      captionHighlights: ['impossible', 'puzzle', 'predicted', 'injury'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [-1.4, 0, 1.2],
-        facing: 'right',
-        expression: 'proud',
-        pose: 'pointing',
-        outfit: 'default',
-        visible: true,
-        scale: 1.02,
-      },
-      {
-        characterId: 'warden',
-        position: [1.4, 0, 0.6],
-        facing: 'left',
-        expression: 'surprised',
-        secondaryExpression: 'neutral',
-        expressionSwitchRatio: 0.5,
-        pose: 'covering_ears',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'warden_office',
-        puzzleSolved: true,
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [{ worldPosition: [0.0, 1.8, -0.5], triggerAtRatio: 0.42, scale: 1.6 }],
-    soundEffects: [
+    music: 'triumphant',
+    sfx: [
       { sfx: 'wood_snap', atRatio: 0.42, volume: 0.75 },
       { sfx: 'ding', atRatio: 0.48, volume: 0.7 },
       { sfx: 'sparkle_chime', atRatio: 0.75, volume: 0.6 },
     ],
-    musicEnergy: 'triumphant',
-    transition: 'white_flash',
-    visualObjective: 'Brass puzzle cube snaps open with SOLVED stamp while stunned Warden covers ears in disbelief.',
+    shot: {
+      set: 'office',
+      time: 'day',
+      camera: CAM([0, -3.8, 1.25], [0, 0.8, 0.65], [0.3, -3.2, 1.15], [0, 0.8, 0.65], 60, { char: 'ravi', fstop: 2.8 }),
+      chars: [
+        { id: 'ravi', x: -0.9, y: 0.2, face: 35, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.4, action: 'G_point' }, { at: 0.75, action: 'G_hips' }] },
+        { id: 'warden', x: 0.8, y: 1.2, face: -30, track: [{ at: 0, action: 'Sitting_Idle_Loop' }, { at: 0.45, action: 'G_facepalm' }] },
+        { id: 'guard', x: 1.8, y: 0.4, face: -45, track: [{ at: 0, action: 'G_cheer' }] },
+      ],
+      props: [{ id: 'puzzle', type: 'puzzle_box', loc: [0.0, 1.2, 0.85] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 9 — PROVED INNOCENCE (23.0–26.6s): Clues missed 10 yrs
-  // ═══════════════════════════════════════════════════════════════
+  // 6. Proved Innocence Clues Missed 10 Years
   {
-    sceneNumber: 9,
-    id: 'prison-09-proven-innocent',
+    id: 'prison-06-proven-innocent',
     title: 'Proved Innocence — Clues Missed 10 Years',
-    targetDurationSeconds: 3.6,
-    padAfterSeconds: 0.15,
-    narration: 'Then proved his own innocence using clues missed for ten years.',
+    seconds: 3.8,
+    narration: 'And proved his own innocence using clues everyone else had missed for ten years.',
+    highlights: ['proved', 'innocence', 'missed', 'ten', 'years'],
+    topTitle: 'INNOCENT ✓',
+    topTitleTone: 'green',
+    stamp: { text: 'INNOCENT ✓', color: 'green', atRatio: 0.45 },
     emotion: 'warm_triumph',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 2.4, 7.8],
-      endPosition: [0.0, 2.2, 5.2],
-      startLookAt: [0.0, 1.8, -0.5],
-      endLookAt: [0.0, 1.9, -0.5],
-      fov: 42,
-      movement: 'dolly_in',
-      impacts: [0.45],
-      handheld: 0.4,
-    },
-    lightingPreset: 'daylight',
-    experimentOverlay: {
-      stamp: { text: 'INNOCENT ✓', color: 'green', atRatio: 0.45 },
-    },
-    hud: {
-      topTitle: 'INNOCENT ✓',
-      topTitleTone: 'green',
-      emojiBurst: { emoji: '⚖️', atRatio: 0.45, count: 10 },
-      captionHighlights: ['proved', 'innocence', 'missed', 'ten', 'years'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 1.0],
-        facing: 'front',
-        expression: 'proud',
-        secondaryExpression: 'peaceful',
-        expressionSwitchRatio: 0.5,
-        pose: 'hands_on_hips',
-        outfit: 'default',
-        visible: true,
-        scale: 1.06,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      showSparkles: true,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'warden_office',
-        evidenceBoardActive: true,
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [{ worldPosition: [0.0, 1.8, 0.0], triggerAtRatio: 0.45, scale: 1.8 }],
-    soundEffects: [
+    music: 'triumphant',
+    sfx: [
       { sfx: 'impact_boom', atRatio: 0.45, volume: 0.75 },
-      { sfx: 'sparkle_chime', atRatio: 0.55, volume: 0.7 },
       { sfx: 'crowd_cheer', atRatio: 0.65, volume: 0.6 },
     ],
-    musicEnergy: 'triumphant',
-    transition: 'cut',
-    visualObjective: 'Cold case file illuminated by golden sparkles as INNOCENT ✓ rubber stamp slams with scale emojis.',
+    shot: {
+      set: 'office',
+      time: 'day',
+      camera: CAM([0, -2.8, 0.95], [0, 0.2, 0.65], [0, -2.4, 0.92], [0, 0.2, 0.65], 65, { char: 'ravi', fstop: 2.4 }),
+      chars: [
+        { id: 'ravi', x: 0, y: 0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_cheer' }] },
+      ],
+      props: [{ id: 'casefile', type: 'case_file', hold: { char: 'ravi', bone: 'DEF-hand.L', from: 0 } }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 10 — GATES OPEN (26.6–28.8s): Walks free
-  // ═══════════════════════════════════════════════════════════════
+  // 7. Gates Open — Walks Free
   {
-    sceneNumber: 10,
-    id: 'prison-10-gates-open',
+    id: 'prison-07-gates-open',
     title: 'Freedom — The Gates Open',
-    targetDurationSeconds: 2.2,
-    padAfterSeconds: 0.15,
+    seconds: 2.2,
     narration: 'The gates open. He walks free.',
+    highlights: ['gates', 'open', 'walks', 'free'],
+    topTitle: 'WALKS FREE ☀️',
+    topTitleTone: 'yellow',
     emotion: 'energetic',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 1.2, 9.5],
-      endPosition: [0.0, 3.6, 12.0],
-      startLookAt: [0.0, 3.0, 0.0],
-      endLookAt: [0.0, 4.0, 0.0],
-      fov: 50,
-      movement: 'low_angle_rise',
-      impacts: [0.3],
-      handheld: 0.5,
-    },
-    lightingPreset: 'warm_golden',
-    hud: {
-      topTitle: 'WALKS FREE ☀️',
-      topTitleTone: 'yellow',
-      emojiBurst: { emoji: '🕊️', atRatio: 0.35, count: 8 },
-      captionHighlights: ['gates', 'open', 'walks', 'free'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, -2.0],
-        endPosition: [0.0, 0, 4.0],
-        moveStartRatio: 0.1,
-        moveEndRatio: 0.95,
-        facing: 'front',
-        expression: 'peaceful',
-        secondaryExpression: 'happy',
-        expressionSwitchRatio: 0.5,
-        pose: 'idle',
-        outfit: 'default',
-        visible: true,
-        scale: 1.05,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      showSparkles: true,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'gates',
-        gatesOpenRatio: 1.0,
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'triumphant',
+    sfx: [
       { sfx: 'whoosh', atRatio: 0.1, volume: 0.6 },
       { sfx: 'sparkle_chime', atRatio: 0.4, volume: 0.65 },
     ],
-    musicEnergy: 'triumphant',
-    transition: 'cut',
-    visualObjective: 'Massive iron gates slide open into golden sunlight as Ravi walks confidently out of prison.',
+    shot: {
+      set: 'gates',
+      time: 'day',
+      camera: CAM([0, -5.2, 0.6], [0, 1.2, 1.2], [0, -4.2, 0.8], [0, 1.6, 1.2], 55),
+      chars: [
+        { id: 'ravi', path: [[0, 0, 0.2, 0], [0.5, 0, 1.5, 0], [1, 0, 3.2, 0]], track: [{ at: 0, action: 'Walk_Formal_Loop' }], speaker: true },
+      ],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 11 — OUTSIDE WORLD (28.8–32.0s): Slow motion city
-  // ═══════════════════════════════════════════════════════════════
+  // 8. Outside World in Slow Motion
   {
-    sceneNumber: 11,
-    id: 'prison-11-slow-motion',
+    id: 'prison-08-slow-motion',
     title: 'The Real Problem — Outside World in Slow Motion',
-    targetDurationSeconds: 3.2,
-    padAfterSeconds: 0.15,
+    seconds: 3.6,
     narration: 'But outside, bus drivers, shopkeepers, even his own family...',
+    highlights: ['outside', 'family'],
+    topTitle: 'SPEED: 0.1X 🐢',
+    topTitleTone: 'red',
     emotion: 'sad',
-    voiceSettings: V,
-    camera: {
-      startPosition: [-2.6, 2.4, 8.0],
-      endPosition: [1.8, 2.4, 7.2],
-      startLookAt: [0.0, 1.8, 1.5],
-      endLookAt: [0.0, 1.8, 1.5],
-      fov: 46,
-      movement: 'pan_right',
-      impacts: [0.5],
-      handheld: 0.3,
-    },
-    lightingPreset: 'daylight',
-    hud: {
-      topTitle: 'SPEED: 0.1X 🐢',
-      topTitleTone: 'red',
-      captionHighlights: ['outside', 'family'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [-1.4, 0, 1.8],
-        facing: 'right',
-        expression: 'exhausted',
-        secondaryExpression: 'skeptical',
-        expressionSwitchRatio: 0.5,
-        pose: 'slumped_tired',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-      {
-        characterId: 'worker',
-        position: [1.6, 0, 1.8],
-        facing: 'left',
-        expression: 'happy',
-        pose: 'pointing',
-        outfit: 'default',
-        visible: true,
-        scale: 0.95,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'city_street',
-        clockSpeed: 0.1,
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-clock', anchorCharacter: 'ravi', kind: 'clock', startAtRatio: 0.35, endAtRatio: 0.85 },
-    ],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'gentle',
+    sfx: [
       { sfx: 'tick', atRatio: 0.3, volume: 0.5 },
-      { sfx: 'tick', atRatio: 0.65, volume: 0.5 },
       { sfx: 'sigh_down', atRatio: 0.8, volume: 0.6 },
     ],
-    musicEnergy: 'gentle',
-    transition: 'cut',
-    visualObjective: 'City bus stop: municipal clock crawls painfully slow as citizen talks in slow-motion to exhausted Ravi.',
+    shot: {
+      set: 'street',
+      time: 'day',
+      camera: CAM([-0.2, -4.2, 0.85], [0, 0.3, 0.62], [0.2, -3.6, 0.82], [0, 0.3, 0.62], 65, { char: 'ravi', fstop: 2.8 }),
+      chars: [
+        { id: 'ravi', x: -0.6, y: 0.2, face: 25, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_think' }] },
+        { id: 'mayor', x: 0.7, y: 0.25, face: -25, track: [{ at: 0, action: 'Idle_Talking_Loop' }] },
+      ],
+      props: [{ id: 'clock', type: 'clock_prop', loc: [0.0, 1.8, 1.8] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 12 — FALLS ASLEEP (32.0–35.5s): Asleep before one sentence
-  // ═══════════════════════════════════════════════════════════════
+  // 9. Falls Asleep Before One Sentence Ends
   {
-    sceneNumber: 12,
-    id: 'prison-12-falls-asleep',
+    id: 'prison-09-falls-asleep',
     title: 'Boredom Peaks — Asleep Before One Sentence',
-    targetDurationSeconds: 3.5,
-    padAfterSeconds: 0.15,
+    seconds: 3.6,
     narration: '...all talk so slowly he falls asleep before they finish one sentence.',
+    highlights: ['slowly', 'asleep', 'one', 'sentence'],
+    topTitle: 'BOREDOM: 100% 💤',
+    topTitleTone: 'red',
+    gauge: { label: 'BOREDOM LEVEL', startVal: 20, endVal: 100, suffix: '%' },
     emotion: 'sad',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 2.4, 7.0],
-      endPosition: [0.0, 1.8, 4.6],
-      startLookAt: [0.0, 1.2, 2.0],
-      endLookAt: [0.0, 1.0, 2.0],
-      fov: 42,
-      movement: 'dolly_in',
-      impacts: [0.45],
-      handheld: 0.2,
-    },
-    lightingPreset: 'soft_overcast',
-    experimentOverlay: {
-      gauge: { label: 'BOREDOM LEVEL', startVal: 20, endVal: 100, suffix: '%' },
-    },
-    hud: {
-      topTitle: 'BOREDOM: 100% 💤',
-      topTitleTone: 'red',
-      emojiBurst: { emoji: '💤', atRatio: 0.45, count: 8 },
-      captionHighlights: ['slowly', 'asleep', 'one', 'sentence'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 2.0],
-        facing: 'front',
-        expression: 'exhausted',
-        secondaryExpression: 'skeptical',
-        expressionSwitchRatio: 0.4,
-        pose: 'slumped_tired',
-        outfit: 'default',
-        visible: true,
-        scale: 1.0,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: false,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'city_street',
-      },
-    },
-    thoughtBubbles: [
-      { id: 'pr-zzz', anchorCharacter: 'ravi', kind: 'zzz', startAtRatio: 0.35, endAtRatio: 0.95 },
-    ],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'suspense',
+    sfx: [
       { sfx: 'sigh_down', atRatio: 0.3, volume: 0.7 },
       { sfx: 'boing', atRatio: 0.6, volume: 0.5 },
     ],
-    musicEnergy: 'suspense',
-    transition: 'whip_fade',
-    visualObjective: 'Ravi slumps asleep on bench with ZZZ thought bubble as BOREDOM LEVEL gauge hits 100%.',
+    shot: {
+      set: 'park',
+      time: 'day',
+      camera: CAM([0, -3.6, 0.75], [0, 0.2, 0.52], [0, -3.0, 0.72], [0, 0.2, 0.52], 65, { char: 'ravi', fstop: 2.2 }),
+      chars: [
+        { id: 'ravi', x: -0.4, y: 0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Sitting_Talking_Loop' }, { at: 0.4, action: 'Sitting_Idle_Loop', hold: 5 }] },
+        { id: 'chloe', x: 0.8, y: 0.3, face: -35, track: [{ at: 0, action: 'Idle_Talking_Loop' }] },
+      ],
+      props: [{ id: 'bench', type: 'mini_sofa', loc: [-0.4, 0.2, 0] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 13 — TURNS BACK IN (35.5–38.1s): One week later returns
-  // ═══════════════════════════════════════════════════════════════
+  // 10. One Week Later — Turns Back In
   {
-    sceneNumber: 13,
-    id: 'prison-13-turns-back-in',
+    id: 'prison-10-turns-back-in',
     title: 'One Week Later — Turns Himself Back In',
-    targetDurationSeconds: 2.6,
-    padAfterSeconds: 0.15,
+    seconds: 2.8,
     narration: 'After one week, Ravi turns himself back in...',
+    highlights: ['one', 'week', 'turns', 'back'],
+    topTitle: 'RETURNS TO PRISON ⛓️',
+    topTitleTone: 'yellow',
+    stamp: { text: 'VOLUNTARY RETURN', color: 'green', atRatio: 0.5 },
     emotion: 'confident',
-    voiceSettings: V,
-    camera: {
-      startPosition: [0.0, 3.4, 11.0],
-      endPosition: [0.0, 2.2, 6.4],
-      startLookAt: [0.0, 2.4, 0.0],
-      endLookAt: [0.0, 2.0, 0.0],
-      fov: 46,
-      movement: 'dolly_in',
-      impacts: [0.5],
-      handheld: 0.4,
-    },
-    lightingPreset: 'storm_rain',
-    experimentOverlay: {
-      stamp: { text: 'VOLUNTARY RETURN', color: 'green', atRatio: 0.5 },
-    },
-    hud: {
-      topTitle: 'RETURNS TO CELL ⛓️',
-      topTitleTone: 'yellow',
-      captionHighlights: ['one', 'week', 'turns', 'back'],
-    },
-    characters: [
-      {
-        characterId: 'ravi',
-        position: [0.0, 0, 4.0],
-        endPosition: [1.8, 0, 1.5],
-        moveStartRatio: 0.1,
-        moveEndRatio: 0.65,
-        facing: 'front',
-        expression: 'peaceful',
-        secondaryExpression: 'proud',
-        expressionSwitchRatio: 0.5,
-        pose: 'pointing',
-        outfit: 'default',
-        visible: true,
-        scale: 1.04,
-      },
-    ],
-    speaker: 'ravi',
-    environment: {
-      ...BASE_PRISON_ENV,
-      rainActive: true,
-      prisonState: {
-        ...BASE_PRISON_ENV.prisonState,
-        zone: 'return_gate',
-        intercomBuzzing: true,
-      },
-    },
-    thoughtBubbles: [],
-    smokePoofs: [],
-    soundEffects: [
+    music: 'driving',
+    sfx: [
       { sfx: 'splash', atRatio: 0.1, volume: 0.6 },
       { sfx: 'ui_click', atRatio: 0.5, volume: 0.8 },
       { sfx: 'impact_boom', atRatio: 0.55, volume: 0.7 },
     ],
-    musicEnergy: 'driving',
-    transition: 'cut',
-    visualObjective: 'Rain pours as Ravi walks up to the prison gate intercom, presses the red button with VOLUNTARY RETURN stamp.',
+    shot: {
+      set: 'gates',
+      time: 'night',
+      camera: CAM([0.8, -2.4, 0.95], [0.4, 1.4, 0.75], [0.6, -1.8, 0.92], [0.4, 1.4, 0.75], 55, { char: 'ravi', fstop: 2.6 }),
+      chars: [
+        { id: 'ravi', path: [[0, -0.6, 0.5, 30], [0.6, 0.2, 1.2, 20], [1, 0.35, 1.35, 10]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.6, action: 'Interact' }], speaker: true },
+      ],
+      props: [{ id: 'buzzer', type: 'intercom', loc: [0.6, 1.5, 0.65] }],
+    },
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  //  SCENE 14 — FINALLY NOT BORED (38.1–42.3s): Loop conclusion
-  // ═══════════════════════════════════════════════════════════════
+  // 11. Ending Loop — Finally Not Bored
   {
-    sceneNumber: 14,
-    id: 'prison-14-never-bored-loop',
+    id: 'prison-11-never-bored-loop',
     title: 'Ending Loop — The Only Place Not Bored',
-    targetDurationSeconds: 4.0,
-    padAfterSeconds: 0.2,
-    narration: "...not because he wanted prison, but because his brain was finally never bored.",
+    seconds: 4.0,
+    narration: "...not because he wanted prison, but because it was the only place where his brain finally wasn't bored.",
+    highlights: ['only', 'place', 'brain', 'never', 'bored'],
+    topTitle: 'PRISON IQ: ∞ 🧠',
+    topTitleTone: 'yellow',
     emotion: 'warm_triumph',
+    music: 'outro',
+    sfx: [
+      { sfx: 'sparkle_chime', atRatio: 0.45, volume: 0.65 },
+      { sfx: 'ding', atRatio: 0.75, volume: 0.6 },
+    ],
+    shot: {
+      set: 'prison',
+      time: 'night',
+      camera: CAM([0, -2.6, 0.82], [0, 0.4, 0.65], [0, -3.5, 0.88], [0, 0.4, 0.65], 65, { char: 'ravi', fstop: 2.4 }),
+      chars: [
+        { id: 'ravi', x: 0, y: 0.4, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_point' }, { at: 0.8, action: 'G_cheer' }] },
+      ],
+    },
+  },
+];
+
+export const PRISON_IQ_SCENES: SceneScript[] = BEATS.map((b, i) => {
+  return {
+    sceneNumber: i + 1,
+    id: b.id,
+    title: b.title,
+    targetDurationSeconds: b.seconds,
+    padAfterSeconds: b.pad ?? 0.2,
+    narration: b.narration,
+    emotion: b.emotion ?? 'curious',
     voiceSettings: V,
     camera: {
-      startPosition: [0.0, 2.2, 5.8],
-      endPosition: [0.0, 2.6, 8.4],
-      startLookAt: [0.0, 2.1, 0.0],
-      endLookAt: [0.0, 2.2, 0.0],
-      fov: 44,
-      movement: 'dolly_out',
-      impacts: [0.5],
-      handheld: 0.3,
+      startPosition: [0, 2.4, 6.0],
+      endPosition: [0, 2.0, 5.0],
+      startLookAt: [0, 1.8, 0],
+      endLookAt: [0, 1.8, 0],
+      fov: 46,
+      movement: 'dolly_in',
+      impacts: [0.3],
     },
-    lightingPreset: 'storm_rain',
+    lightingPreset: b.shot.time === 'night' ? 'storm_rain' : 'daylight',
     hud: {
-      topTitle: 'PRISON IQ: ∞ 🧠',
-      topTitleTone: 'yellow',
-      emojiBurst: { emoji: '🧠', atRatio: 0.6, count: 10 },
-      captionHighlights: ['only', 'place', 'brain', 'never', 'bored'],
+      captionHighlights: b.highlights,
+      ...(b.topTitle ? { topTitle: b.topTitle, topTitleTone: b.topTitleTone ?? 'yellow' } : {}),
+      ...(i === 0 ? { emojiBurst: { emoji: '⛓️', atRatio: 0.45, count: 8 } } : {}),
+      ...(i === 10 ? { emojiBurst: { emoji: '🧠', atRatio: 0.6, count: 10 } } : {}),
+    },
+    experimentOverlay: {
+      ...(b.gauge ? { gauge: b.gauge } : {}),
+      ...(b.stamp ? { stamp: b.stamp } : {}),
     },
     characters: [
       {
         characterId: 'ravi',
-        position: [0.0, 0, 0.8],
+        position: [0, 0, 0.8],
         facing: 'front',
-        expression: 'peaceful',
-        secondaryExpression: 'happy',
-        expressionSwitchRatio: 0.5,
+        expression: 'neutral',
         pose: 'hands_on_hips',
         outfit: 'default',
         visible: true,
@@ -1033,25 +439,18 @@ export const PRISON_IQ_SCENES: SceneScript[] = [
     speaker: 'ravi',
     environment: {
       ...BASE_PRISON_ENV,
-      rainActive: true,
-      showSparkles: true,
-      showSubscribeCta: true,
+      rainActive: b.shot.time === 'night',
       prisonState: {
         ...BASE_PRISON_ENV.prisonState,
-        zone: 'cell',
-        barsVisible: true,
+        zone: b.shot.set === 'laundry' ? 'laundry' : b.shot.set === 'office' ? 'warden_office' : b.shot.set === 'gates' ? 'gates' : b.shot.set === 'street' || b.shot.set === 'park' ? 'city_street' : 'cell',
       },
     },
-    thoughtBubbles: [
-      { id: 'pr-heart', anchorCharacter: 'ravi', kind: 'heart', startAtRatio: 0.4, endAtRatio: 0.95 },
-    ],
+    thoughtBubbles: [],
     smokePoofs: [],
-    soundEffects: [
-      { sfx: 'sparkle_chime', atRatio: 0.45, volume: 0.65 },
-      { sfx: 'ding', atRatio: 0.75, volume: 0.6 },
-    ],
-    musicEnergy: 'outro',
-    transition: 'cut',
-    visualObjective: 'Ravi back in his stone cell smiling serenely behind iron bars as rain falls and PRISON IQ: ∞ loops.',
-  },
-];
+    soundEffects: b.sfx ?? [],
+    musicEnergy: b.music ?? 'driving',
+    transition: i === 0 ? 'zoom_punch' : 'cut',
+    shot: b.shot,
+    visualObjective: b.title,
+  } as SceneScript;
+});

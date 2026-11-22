@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { attachMouthEnvelopes } from '../src/services/audio/mouthEnvelope.js';
 import { resolveStory } from '../src/pipeline/story/storyRegistry.js';
 import { saveProductionPlan, saveScriptBundle } from '../src/pipeline/production/productionStore.js';
@@ -100,26 +100,35 @@ async function main(): Promise<void> {
 
   const specDir = path.join(process.cwd(), 'output', 'blender-specs', story.concept.id);
   fs.mkdirSync(specDir, { recursive: true });
-  for (const cs of plan.scenes) {
-    if (!cs.scene.shot) throw new Error(`Scene ${cs.scene.id} has no shot`);
-    const spec = shotSpec(story.concept.id, cs, plan.fps);
-    cs.scene.footage = spec.out.replace(/^public\//, '');
-    if (only && cs.scene.id !== only) continue;
-    const specFile = path.join(specDir, `${cs.scene.id}.json`);
-    fs.writeFileSync(specFile, JSON.stringify(spec));
-    const outAbs = path.join(process.cwd(), spec.out);
-    if (!stills && arg('skip-existing') && fs.existsSync(outAbs)) {
-      console.log(`[shot] ${cs.scene.id}: exists, skipped`);
-      continue;
+  const concurrency = Number.parseInt(argVal('concurrency') ?? '3', 10);
+  const queue = [...plan.scenes];
+  async function worker(workerId: number) {
+    while (queue.length > 0) {
+      const cs = queue.shift()!;
+      if (!cs.scene.shot) throw new Error(`Scene ${cs.scene.id} has no shot`);
+      const spec = shotSpec(story.concept.id, cs, plan.fps);
+      cs.scene.footage = spec.out.replace(/^public\//, '');
+      if (only && cs.scene.id !== only) continue;
+      const specFile = path.join(specDir, `${cs.scene.id}.json`);
+      fs.writeFileSync(specFile, JSON.stringify(spec));
+      const outAbs = path.join(process.cwd(), spec.out);
+      if (!stills && arg('skip-existing') && fs.existsSync(outAbs)) {
+        console.log(`[shot][w${workerId}] ${cs.scene.id}: exists, skipped`);
+        continue;
+      }
+      fs.mkdirSync(path.dirname(outAbs), { recursive: true });
+      const t0 = Date.now();
+      const extra = stills ? ['--stills', [1, Math.round(spec.frames * 0.5), spec.frames - 1].join(',')] : [];
+      await new Promise<void>((resolve, reject) => {
+        execFile(BLENDER, ['-b', '--factory-startup', '--python', 'blender/scripts/render_scene.py', '--', specFile, ...extra], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+      console.log(`[shot][w${workerId}] ${cs.scene.id}: ${spec.frames} frames in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
     }
-    fs.mkdirSync(path.dirname(outAbs), { recursive: true });
-    const t0 = Date.now();
-    const extra = stills ? ['--stills', [1, Math.round(spec.frames * 0.5), spec.frames - 1].join(',')] : [];
-    execFileSync(BLENDER, ['-b', '--factory-startup', '--python', 'blender/scripts/render_scene.py', '--', specFile, ...extra], {
-      stdio: ['ignore', 'ignore', 'inherit'],
-    });
-    console.log(`[shot] ${cs.scene.id}: ${spec.frames} frames in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
   }
+  await Promise.all(Array.from({ length: concurrency }, (_, i) => worker(i + 1)));
   if (stills || only) return;
 
   saveProductionPlan(plan);

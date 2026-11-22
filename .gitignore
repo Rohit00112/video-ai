@@ -9,6 +9,7 @@ output/videos/
 output/audio/
 output/branding/
 output/reports/
+output/blender-specs/
 public/audio/
 public/footage/
 __pycache__/

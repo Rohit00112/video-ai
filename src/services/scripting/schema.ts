@@ -532,7 +532,7 @@ export const SceneScriptSchema = z.object({
   /** Blender shot direction (blender/scripts/render_scene.py), turned into `footage` by scripts/produce-blender.ts */
   shot: z
     .object({
-      set: z.enum(['street', 'park', 'home', 'kitchen']),
+      set: z.enum(['street', 'park', 'home', 'kitchen', 'prison', 'office', 'laundry', 'gates']),
       camera: z.any().optional(),
       chars: z.array(z.any()),
       /** Props (blender/lib/toonprops.py): placed, held (hand-attached), swapped, animated; times are scene ratios */

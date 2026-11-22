@@ -453,6 +453,29 @@ def door_glow(name, w=0.56, h=1.2):
     _own(root, _box(f'{name}_side', g, (0.012, 0.01, h), (w / 2 + 0.006, 0, h / 2)), outline=False)
     return root
 
+def brick_stack(name):
+    root = _empty(name)
+    b_mat = M('brick', '#8D5B4C', '#633B30')
+    mortar = M('mortar', '#A0AEC0', '#718096')
+    for r in range(4):
+        for c in range(3):
+            ox = (r % 2) * 0.08
+            _own(root, _box(f'{name}_b_{r}_{c}', b_mat, (0.24, 0.14, 0.09), (c * 0.26 - 0.26 + ox, 0, r * 0.1 + 0.045)))
+    return root
+
+
+def clock_prop(name):
+    root = _empty(name)
+    rim_mat = M('clockrim', '#2D3748', '#1A202C')
+    face_mat = M('clockface', '#FFFFFF', em=True)
+    hand_mat = M('clockhand', '#E53E3E', em=True)
+    _own(root, _cyl(f'{name}_rim', rim_mat, 0.45, 0.08, (0, 0, 0.04)))
+    _own(root, _cyl(f'{name}_face', face_mat, 0.40, 0.09, (0, 0, 0.045)), outline=False)
+    _own(root, _box(f'{name}_hand_h', rim_mat, (0.04, 0.22, 0.02), (0, 0.08, 0.095)), outline=False)
+    _own(root, _box(f'{name}_hand_m', hand_mat, (0.02, 0.32, 0.02), (0.1, 0.05, 0.095)), outline=False)
+    return root
+
+
 BUILDERS = {
     'pizza': lambda n, p: pizza(n, p.get('missing', 1)),
     'slice': lambda n, p: slice_(n, False),
@@ -487,6 +510,8 @@ BUILDERS = {
     'puzzle_box': lambda n, p: puzzle_box(n),
     'case_file': lambda n, p: case_file(n),
     'intercom': lambda n, p: intercom(n),
+    'brick_stack': lambda n, p: brick_stack(n),
+    'clock_prop': lambda n, p: clock_prop(n),
 }
 
 

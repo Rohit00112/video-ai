@@ -114,23 +114,33 @@ export function runQualityChecks(plan: ProductionPlan, videoPath?: string): QaRe
         : `Missing audio assets: ${missingAssets.join(', ')}`,
   });
 
-  // 5. Character consistency check across scenes (supports both village & harbor casts)
+  // 5. Character consistency check across scenes (supports village, harbor, city, and prison casts)
   const characterIds = new Set<string>();
   for (const s of plan.scenes) {
     for (const c of s.scene.characters) {
       characterIds.add(c.characterId);
+    }
+    if (Array.isArray(s.scene.shot?.chars)) {
+      for (const char of s.scene.shot.chars) {
+        if (char?.id) characterIds.add(char.id);
+      }
+    } else if (s.scene.shot?.chars) {
+      for (const charId of Object.keys(s.scene.shot.chars)) {
+        characterIds.add(charId);
+      }
     }
   }
   const hasVillageCast = characterIds.has('sam') && characterIds.has('maya') && characterIds.has('leo');
   const hasHarborCast = characterIds.has('finn') && characterIds.has('cora') && characterIds.has('kai');
   // City stories only need a recurring hero, not the whole Mayor/Alex/Chloe trio
   const hasCityCast = ['alex', 'chloe', 'granny', 'mayor', 'worker', 'chef'].some((id) => characterIds.has(id));
+  const hasPrisonCast = ['ravi', 'warden', 'guard'].some((id) => characterIds.has(id));
   const isCustom3DWorld = plan.scenes.some(
     (s) => s.scene.environment.worldTheme === 'space_chaos' || s.scene.environment.worldTheme === 'subway_chaos'
   );
   checks.push({
     name: 'Character Consistency & Casting',
-    passed: hasVillageCast || hasHarborCast || hasCityCast || isCustom3DWorld,
+    passed: hasVillageCast || hasHarborCast || hasCityCast || hasPrisonCast || isCustom3DWorld,
     details: isCustom3DWorld
       ? `Custom 3D sculpted character cast verified (${plan.scenes[0]?.scene.environment.worldTheme})`
       : `Active recurring cast verified: ${Array.from(characterIds).join(', ')}`,
