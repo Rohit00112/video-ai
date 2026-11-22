@@ -526,19 +526,25 @@ def _table(name):
 
 def puzzle_box(name):
     root = _empty(name)
-    wood = M('pbox', '#9E6A38', '#734A22')
-    brass = M('pbrass', '#F2C14E', '#C9982E')
-    _own(root, _box(f'{name}_cube', wood, (0.35, 0.35, 0.35), (0, 0, 0.175)))
-    _own(root, _cyl(f'{name}_ring', brass, 0.08, 0.05, (0, 0, 0.375)))
+    wood = M('pbox', '#4A2810', '#2E1708')
+    brass = M('pbrass', '#ECC94B', em=True)
+    gem = M('pgem', '#48BB78', em=True)
+    _own(root, _box(f'{name}_cube', wood, (0.26, 0.26, 0.26), (0, 0, 0.13)))
+    _own(root, _box(f'{name}_ring_x', brass, (0.27, 0.06, 0.06), (0, 0, 0.13)), outline=False)
+    _own(root, _box(f'{name}_ring_z', brass, (0.06, 0.06, 0.27), (0, 0, 0.13)), outline=False)
+    _own(root, tc.ellipsoid(f'{name}_gem', gem, (0.045, 0.045, 0.045), (0, 0, 0.27), seg=12, rings=8), outline=False)
     return root
 
 
 def case_file(name):
     root = _empty(name)
-    manila = M('cfile', '#D6BE8B', '#B59C68')
-    red = M('cseal', '#D93829', '#A82518')
-    _own(root, _box(f'{name}_folder', manila, (0.45, 0.6, 0.06), (0, 0, 0.03)))
-    _own(root, _cyl(f'{name}_seal', red, 0.08, 0.02, (0, 0, 0.07)))
+    manila = M('cfile', '#D6BE8B', '#A8905D')
+    white = M('cpaper', '#FFFFFF', '#E2E8F0')
+    red = M('cseal', '#E53E3E', em=True)
+    _own(root, _box(f'{name}_folder', manila, (0.24, 0.32, 0.02), (0, 0, 0.01)))
+    _own(root, _box(f'{name}_paper', white, (0.22, 0.30, 0.025), (0, 0.01, 0.015)), outline=False)
+    _own(root, tc.ellipsoid(f'{name}_seal', red, (0.045, 0.045, 0.015), (0.04, -0.04, 0.028)), outline=False)
+    _own(root, _box(f'{name}_tab', manila, (0.08, 0.03, 0.02), (0.06, 0.16, 0.01)))
     return root
 
 
