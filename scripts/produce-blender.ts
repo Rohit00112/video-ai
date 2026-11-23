@@ -61,6 +61,7 @@ function shotSpec(storyId: string, cs: CompiledScene, fps: number) {
       blinkUntil: c.blinkUntil !== undefined ? fr(c.blinkUntil) : undefined,
       blinkFrom: c.blinkFrom !== undefined ? fr(c.blinkFrom) : undefined,
       sleepFrom: c.sleepFrom !== undefined ? fr(c.sleepFrom) : undefined,
+      unhideAt: c.unhideAt !== undefined ? fr(c.unhideAt) : undefined,
       visemes: c.speaker ? cs.visemes : undefined,
       emph: c.speaker ? cs.emphasisFrames : undefined,
     })),

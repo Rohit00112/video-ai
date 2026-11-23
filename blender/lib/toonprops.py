@@ -531,7 +531,111 @@ BUILDERS = {
     'brick_stack': lambda n, p: brick_stack(n),
     'clock_prop': lambda n, p: clock_prop(n),
     'beam': lambda n, p: beam(n),
+    'donut': lambda n, p: donut(n, p.get('bitten', False)),
+    'sunglasses': lambda n, p: sunglasses(n),
+    'money_sack': lambda n, p: money_sack(n),
+    'paint_bucket': lambda n, p: paint_bucket(n, p.get('color', '#00FFCC')),
+    'briefcase': lambda n, p: briefcase(n),
+    'microphone_stand': lambda n, p: microphone_stand(n),
 }
+
+
+def donut(name, bitten=False):
+    """Plump ring donut with pink frosting and colorful sprinkles."""
+    root = _empty(name)
+    dough_mat = M('doughnut', '#E8A756', '#C7883C')
+    frost_mat = M('frosting', '#FF69B4', '#E05297')
+    sprinkle_cols = [
+        M('sp1', '#FFE066', em=True),
+        M('sp2', '#4D96FF', em=True),
+        M('sp3', '#6BCB77', em=True),
+        M('sp4', '#FFFFFF', em=True),
+    ]
+
+    n_seg = 14
+    r_maj = 0.065
+    r_min = 0.024
+    for i in range(n_seg):
+        if bitten and i in (3, 4):  # bite gap
+            continue
+        a = (2 * math.pi * i) / n_seg
+        x = r_maj * math.cos(a)
+        y = r_maj * math.sin(a)
+        _own(root, tc.ellipsoid(f'{name}_d_{i}', dough_mat, (r_min * 1.1, r_min * 1.1, r_min), (x, y, 0), seg=10, rings=8), outline=False)
+        _own(root, tc.ellipsoid(f'{name}_f_{i}', frost_mat, (r_min * 0.95, r_min * 0.95, r_min * 0.5), (x, y, r_min * 0.65), seg=10, rings=6), outline=False)
+        if i % 2 == 0:
+            sp_mat = sprinkle_cols[i % len(sprinkle_cols)]
+            _own(root, tc.ellipsoid(f'{name}_sp_{i}', sp_mat, (0.005, 0.002, 0.002), (x * 1.05, y * 1.05, r_min * 1.1), seg=6, rings=4), outline=False)
+    return root
+
+
+def sunglasses(name):
+    """Toon dark sunglasses designed to mount on DEF-head."""
+    root = _empty(name)
+    frame_mat = M('sgframe', '#1A1A1A', '#0D0D0D')
+    lens_mat = M('sglens', '#2B2B2B', '#111111')
+    _own(root, _box(f'{name}_bridge', frame_mat, (0.04, 0.015, 0.012), (0, 0, 0)))
+    for side, sx in (('L', -1), ('R', 1)):
+        cx = sx * 0.065
+        _own(root, _box(f'{name}_rim_{side}', frame_mat, (0.08, 0.018, 0.05), (cx, 0, -0.005)))
+        _own(root, _box(f'{name}_lens_{side}', lens_mat, (0.065, 0.02, 0.038), (cx, 0.001, -0.005)), outline=False)
+        _own(root, _box(f'{name}_arm_{side}', frame_mat, (0.01, 0.16, 0.012), (sx * 0.105, 0.08, 0.01)), outline=False)
+    return root
+
+
+def money_sack(name):
+    """Bulbous burlap bank sack with rope tie and $ logo."""
+    root = _empty(name)
+    burlap = M('sack', '#C8A26A', '#9F7C48')
+    rope = M('rope', '#ECC94B', em=True)
+    dollar = M('green_sym', '#2ECC71', em=True)
+    _own(root, tc.ellipsoid(f'{name}_body', burlap, (0.16, 0.14, 0.18), (0, 0, 0.16), seg=20, rings=14))
+    _own(root, _cyl(f'{name}_tie', rope, 0.07, 0.035, (0, 0, 0.31)), outline=False)
+    _own(root, tc.ellipsoid(f'{name}_top', burlap, (0.11, 0.09, 0.06), (0, 0, 0.36), seg=16, rings=8))
+    _own(root, tc.ellipsoid(f'{name}_badge', dollar, (0.065, 0.02, 0.08), (0, -0.13, 0.16), seg=12, rings=8), outline=False)
+    return root
+
+
+def paint_bucket(name, color='#00FFCC'):
+    """Metal paint can with handle and glowing neon paint."""
+    root = _empty(name)
+    metal = M('can_metal', '#8C9BAE', '#607082')
+    paint = M(f'neon_p_{color.replace("#","")}', color, em=True)
+    _own(root, _cyl(f'{name}_can', metal, 0.11, 0.22, (0, 0, 0.11), seg=24))
+    _own(root, _cyl(f'{name}_rim', metal, 0.118, 0.02, (0, 0, 0.215), seg=24))
+    _own(root, _cyl(f'{name}_paint', paint, 0.10, 0.01, (0, 0, 0.20), seg=20), outline=False)
+    _own(root, tc.capsule(f'{name}_drip', paint, (0.108, 0, 0.21), (0.115, 0, 0.12), 0.015, 0.008), outline=False)
+    for k in range(5):
+        t = k / 4.0
+        ang = math.pi * t
+        x = 0.125 * math.cos(ang)
+        z = 0.22 + 0.13 * math.sin(ang)
+        _own(root, tc.ellipsoid(f'{name}_h_{k}', metal, (0.01, 0.01, 0.01), (x, 0, z), seg=8, rings=6), outline=False)
+    return root
+
+
+def briefcase(name):
+    """Classic leather business briefcase."""
+    root = _empty(name)
+    leather = M('bcase', '#4A2810', '#2E1708')
+    gold = M('bbrass', '#ECC94B', em=True)
+    _own(root, _box(f'{name}_body', leather, (0.34, 0.12, 0.24), (0, 0, 0.12)))
+    _own(root, _box(f'{name}_handle', leather, (0.12, 0.03, 0.05), (0, 0, 0.26)))
+    _own(root, _box(f'{name}_latch_L', gold, (0.03, 0.125, 0.03), (-0.09, 0, 0.15)), outline=False)
+    _own(root, _box(f'{name}_latch_R', gold, (0.03, 0.125, 0.03), (0.09, 0, 0.15)), outline=False)
+    return root
+
+
+def microphone_stand(name):
+    """Podium microphone stand."""
+    root = _empty(name)
+    metal = M('mic_mtl', '#2D3748', '#1A202C')
+    silver = M('mic_mesh', '#E2E8F0', em=True)
+    _own(root, _cyl(f'{name}_base', metal, 0.07, 0.015, (0, 0, 0.0075)))
+    _own(root, _cyl(f'{name}_pole', metal, 0.012, 0.26, (0, 0, 0.14)))
+    _own(root, tc.capsule(f'{name}_neck', metal, (0, 0, 0.26), (0, -0.06, 0.32), 0.012, 0.010))
+    _own(root, tc.ellipsoid(f'{name}_cap', silver, (0.022, 0.035, 0.022), (0, -0.08, 0.34), seg=14, rings=8))
+    return root
 
 
 def _table(name):

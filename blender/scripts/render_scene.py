@@ -154,7 +154,7 @@ def face_parts(rig, tag):
     return [o for o in children(rig) if o.get(tag)]
 
 
-def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, emph=None, sleep_from=None):
+def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, emph=None, sleep_from=None, start_from=0):
     eyes = face_parts(rig, 'blink') + [o for o in children(rig) if '_hl' in o.name]
     max_viseme_frame = int(sleep_from) if sleep_from is not None else frames
     if visemes:
@@ -163,7 +163,7 @@ def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, 
             if o.get('viseme'):
                 groups.setdefault(o['viseme'], []).append(o)
         prev = None
-        for f in range(min(max_viseme_frame, len(visemes))):
+        for f in range(start_from, min(max_viseme_frame, len(visemes))):
             v = visemes[f] if visemes[f] in groups else 'X'
             if v == prev:
                 continue
@@ -648,12 +648,54 @@ def main():
         rig.animation_data.action = None
         build_nla(rig, c.get('track') or [{'action': 'Idle_Loop', 'start': 0}], frames)
         key_path(rig, c.get('path'), (c.get('x', 0), c.get('y', 0), c.get('face', 0)))  # after NLA (active action)
-        key_face(rig, c.get('visemes'), frames, c.get('blink', True), seed=i * 13 + 5,
-                 blink_from=int(c.get('blinkFrom', 0)), blink_until=c.get('blinkUntil'),
-                 emph=c.get('emph'), sleep_from=c.get('sleepFrom'))
+        unhide_at = c.get('unhideAt')
+        is_invis = c.get('invisible', False)
+        if not is_invis or unhide_at is not None:
+            key_face(rig, c.get('visemes'), frames, c.get('blink', True), seed=i * 13 + 5,
+                     blink_from=int(c.get('blinkFrom', 0)), blink_until=c.get('blinkUntil'),
+                     emph=c.get('emph'), sleep_from=c.get('sleepFrom'),
+                     start_from=int(unhide_at) if unhide_at is not None else 0)
         if c.get('scale'):
             rig.scale = (c['scale'],) * 3
         add_shadow(rig)
+
+        # Handle paintColor (glowing neon paint silhouette)
+        if c.get('paintColor'):
+            p_col = c['paintColor']
+            p_mat = tc.toon_mat(f'paint_{p_col.replace("#", "")}', p_col, emissive=True)
+            for o in children(rig):
+                if o.type == 'MESH' and not o.name.endswith('_shadow'):
+                    o.data.materials.clear()
+                    o.data.materials.append(p_mat)
+
+        # Handle invisibility (hide character mesh while keeping bone-attached props floating)
+        if is_invis:
+            sh = bpy.data.objects.get(f'{rig.name}_shadow')
+            if unhide_at is None:
+                for o in children(rig):
+                    if o.type == 'MESH':
+                        o.hide_render = True
+                        o.scale = (0, 0, 0)
+                if sh:
+                    sh.hide_render = True
+                    sh.scale = (0, 0, 0)
+            else:
+                uf = int(unhide_at) + 1
+                for o in children(rig):
+                    if o.type == 'MESH' and not o.name.endswith('_shadow'):
+                        o.scale = (0, 0, 0)
+                        o.keyframe_insert('scale', frame=1)
+                        o.keyframe_insert('scale', frame=max(1, uf - 1))
+                        o.scale = (1, 1, 1)
+                        o.keyframe_insert('scale', frame=uf)
+                        _const(o)
+                if sh:
+                    sh.scale = (0, 0, 0)
+                    sh.keyframe_insert('scale', frame=1)
+                    sh.keyframe_insert('scale', frame=max(1, uf - 1))
+                    sh.scale = (1, 1, 1)
+                    sh.keyframe_insert('scale', frame=uf)
+                    _const(sh)
 
     build_props(spec, frames)
     build_set_anim(spec, frames)

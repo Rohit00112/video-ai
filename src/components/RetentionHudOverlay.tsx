@@ -48,7 +48,9 @@ export const RetentionHudOverlay: React.FC<RetentionHudOverlayProps> = ({
         />
       </div>
 
-      {hud?.topTitle && <TopTitle text={hud.topTitle} tone={hud.topTitleTone ?? 'yellow'} elapsed={sceneElapsedSeconds} remaining={sceneDurationSeconds - sceneElapsedSeconds} globalSeconds={globalSeconds} />}
+      {hud?.topTitle && (!hud?.engagementPoll || sceneProgress < (hud.engagementPoll.atRatio ?? 0.5)) && (
+        <TopTitle text={hud.topTitle} tone={hud.topTitleTone ?? 'yellow'} elapsed={sceneElapsedSeconds} remaining={sceneDurationSeconds - sceneElapsedSeconds} globalSeconds={globalSeconds} />
+      )}
 
       {hud?.engagementPoll && sceneProgress >= (hud.engagementPoll.atRatio ?? 0.5) && (
         <EngagementPollCard

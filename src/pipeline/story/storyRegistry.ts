@@ -16,6 +16,7 @@ import { EVERYONE_GONE_CONCEPT, EVERYONE_GONE_SCENES } from './everyoneGoneStory
 import { FREEZE_TIME_CONCEPT, FREEZE_TIME_SCENES } from './freezeTimeStory.js';
 import { FIVE_HUNDRED_IQ_PUPPET_CONCEPT, FIVE_HUNDRED_IQ_PUPPET_SCENES } from './fiveHundredIqPuppetStory.js';
 import { PRISON_IQ_CONCEPT, PRISON_IQ_SCENES } from './prisonIqStory.js';
+import { EVERYONE_INVISIBLE_CONCEPT, EVERYONE_INVISIBLE_SCENES } from './everyoneInvisibleStory.js';
 
 export interface RegisteredStory {
   id: string;
@@ -108,6 +109,11 @@ export const STORY_REGISTRY: Record<string, RegisteredStory> = {
     id: PRISON_IQ_CONCEPT.id,
     concept: PRISON_IQ_CONCEPT,
     scenes: PRISON_IQ_SCENES,
+  },
+  [EVERYONE_INVISIBLE_CONCEPT.id]: {
+    id: EVERYONE_INVISIBLE_CONCEPT.id,
+    concept: EVERYONE_INVISIBLE_CONCEPT,
+    scenes: EVERYONE_INVISIBLE_SCENES,
   },
 };
 
