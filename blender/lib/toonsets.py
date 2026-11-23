@@ -272,8 +272,8 @@ def build_laundry():
     sky('#222C38', '#141A22')
     box('Floor', M('laundry_floor', '#4A5568', '#323B4A'), (14, 10, 0.1), (0, 1.5, -0.05), outline=False)
     box('SafeZone', M('safezone', '#2F855A', em=True), (1.6, 2.0, 0.015), (0.0, 0.3, 0.01), outline=False)
-    # Upright glowing marker so the blind spot reads from a low camera angle
-    box('BlindSpotGlow', M('blindspot', '#38B26A', em=True), (0.7, 0.04, 1.3), (0.0, 0.25, 0.7), outline=False)
+    # Subtle glowing boundary tape on the floor so the blind spot reads without blocking the character
+    box('BlindSpotGlow', M('blindspot', '#38B26A', em=True), (0.7, 0.04, 0.03), (0.0, 0.25, 0.015), outline=False)
     box('BackWall', M('laundry_wall', '#718096', '#4A5568'), (14, 0.4, 6), (0, 3.2, 3.0))
     box('Pipe', M('pipe', '#A0AEC0', '#718096'), (14, 0.16, 0.16), (0, 2.5, 4.2))
     # Washers

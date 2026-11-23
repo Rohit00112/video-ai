@@ -35,8 +35,6 @@ export const PRISON_IQ_CONCEPT: StoryConcept = {
   musicStyle: 'documentary',
   captionStyle: 'storytime',
   visualStyle: 'storytime',
-  styleVersion: 'v3',
-  renderMode: 'three',
 };
 
 const BASE_PRISON_ENV = {
@@ -167,7 +165,7 @@ const BEATS: Beat[] = [
     shot: {
       set: 'laundry',
       time: 'day',
-      camera: CAM([-0.35, -2.0, 0.92], [-0.1, 0.15, 0.62], [-0.3, -1.75, 0.9], [-0.1, 0.15, 0.62], 48),
+      camera: CAM([-0.35, -2.4, 0.72], [-0.1, 0.25, 0.58], [-0.3, -2.0, 0.72], [-0.1, 0.25, 0.58], 52),
       chars: [
         { id: 'guard', path: [[0, -1.6, 0.6, 90], [0.5, 0.0, 0.6, 90], [1, 1.6, 0.6, 90]], track: [{ at: 0, action: 'Walk_Loop' }] },
         { id: 'ravi', path: [[0, -0.6, -0.2, 20], [0.4, -0.6, -0.2, 20], [0.75, -0.2, 0.1, 15], [1, -0.2, 0.1, 15]], track: [{ at: 0, action: 'Crouch_Idle_Loop' }, { at: 0.4, action: 'Crouch_Fwd_Loop' }, { at: 0.75, action: 'Crouch_Idle_Loop' }], speaker: true },
@@ -216,19 +214,19 @@ const BEATS: Beat[] = [
       { sfx: 'sparkle_chime', atRatio: 0.75, volume: 0.6 },
     ],
     setAnim: [
-      { name: 'beam_main', type: 'drop', from: 3.2, to: 0.15, gravity: 0.024, bounce: 0.3, start: 0.38, end: 0.9 },
+      { name: 'beam', type: 'drop', from: 3.2, to: 0.15, gravity: 0.024, bounce: 0.3, start: 0.38, end: 0.9 },
     ],
     shot: {
       set: 'office',
       time: 'day',
-      camera: CAM([0, -4.0, 1.15], [0, 0.65, 0.75], [0.15, -3.6, 1.12], [0.1, 0.65, 0.75], 55, { char: 'ravi', fstop: 2.8 }),
+      camera: CAM([0, -3.6, 1.05], [0.05, 0.65, 0.72], [0.1, -3.2, 1.05], [0.05, 0.65, 0.72], 55, { char: 'ravi', fstop: 2.8 }),
       chars: [
-        { id: 'ravi', x: -0.6, y: -0.15, face: 25, speaker: true, track: [{ at: 0, action: 'Interact' }, { at: 0.35, action: 'G_point' }, { at: 0.7, action: 'G_hips' }] },
-        { id: 'warden', x: 0.35, y: 1.45, face: -20, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.42, action: 'G_facepalm' }] },
-        { id: 'guard', path: [[0, 0.85, 0.15, -25], [0.36, 0.85, 0.15, -25], [0.55, 0.45, -0.2, -15], [1, 0.45, -0.2, -15]], track: [{ at: 0, action: 'Idle_Loop' }, { at: 0.36, action: 'Jump_Start' }, { at: 0.6, action: 'G_cheer' }] },
+        { id: 'ravi', x: -0.55, y: 0.15, face: 25, speaker: true, track: [{ at: 0, action: 'Interact' }, { at: 0.35, action: 'G_point' }, { at: 0.7, action: 'G_hips' }] },
+        { id: 'warden', x: 0.25, y: 1.45, face: -20, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.42, action: 'G_facepalm' }] },
+        { id: 'guard', path: [[0, 0.85, 0.15, -25], [0.36, 0.85, 0.15, -25], [0.55, 0.5, -0.2, -15], [1, 0.5, -0.2, -15]], track: [{ at: 0, action: 'Idle_Loop' }, { at: 0.36, action: 'Jump_Start' }, { at: 0.6, action: 'G_cheer' }] },
       ],
       props: [
-        { id: 'puzzle', type: 'puzzle_box', loc: [0.05, 0.95, 0.72], scale: 1.2 },
+        { id: 'puzzle', type: 'puzzle_box', loc: [-0.15, 0.75, 0.72], scale: 1.2 },
         { id: 'beam', type: 'beam', loc: [0.85, 0.15, 0.0] },
       ],
     },
@@ -302,7 +300,7 @@ const BEATS: Beat[] = [
       { sfx: 'sigh_down', atRatio: 0.8, volume: 0.6 },
     ],
     setAnim: [
-      { name: 'clock_main', type: 'slowTick', step: 8 },
+      { name: 'clock', type: 'slowTick', step: 8 },
     ],
     shot: {
       set: 'street',
@@ -362,7 +360,7 @@ const BEATS: Beat[] = [
       time: 'night',
       camera: CAM([0.7, -2.0, 0.95], [0.35, 1.1, 0.75], [0.55, -1.6, 0.92], [0.35, 1.1, 0.75], 55, { char: 'ravi', fstop: 2.6 }),
       chars: [
-        { id: 'ravi', path: [[0, -0.2, 0.4, 25], [0.55, 0.35, 0.85, 15], [1, 0.35, 0.85, 15]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.55, action: 'Interact' }], speaker: true },
+        { id: 'ravi', path: [[0, -0.2, 0.35, 25], [0.55, 0.22, 0.68, 15], [1, 0.22, 0.68, 15]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.55, action: 'Interact' }], speaker: true },
       ],
       props: [{ id: 'buzzer', type: 'intercom', loc: [0.45, 0.9, 1.0], scale: 2.2 }],
     },
@@ -375,8 +373,6 @@ const BEATS: Beat[] = [
     seconds: 4.0,
     narration: "...not because he wanted prison, but because it was the only place where his brain finally wasn't bored.",
     highlights: ['only', 'place', 'brain', 'never', 'bored'],
-    topTitle: 'PRISON IQ: ∞ 🧠',
-    topTitleTone: 'yellow',
     emotion: 'warm_triumph',
     music: 'outro',
     sfx: [
@@ -424,8 +420,8 @@ export const PRISON_IQ_SCENES: SceneScript[] = BEATS.map((b, i) => {
             emojiBurst: { emoji: '🧠', atRatio: 0.52, count: 12 },
             engagementPoll: {
               question: 'WOULD YOU ESCAPE OR STAY? 🤔',
-              optionA: '🅰️ STAY 🧠',
-              optionB: '🅱️ ESCAPE 🏃',
+              optionA: '🅰️ STAY IN CELL 🧠',
+              optionB: '🅱️ ESCAPE CITY 🏃',
               atRatio: 0.48,
             },
           }

@@ -537,6 +537,10 @@ BUILDERS = {
     'paint_bucket': lambda n, p: paint_bucket(n, p.get('color', '#00FFCC')),
     'briefcase': lambda n, p: briefcase(n),
     'microphone_stand': lambda n, p: microphone_stand(n),
+    'floating_counter': lambda n, p: floating_counter(n, p.get('text', '12,410'), p.get('color', '#FFE600'), p.get('prefix', 'LIES: ')),
+    'french_fries': lambda n, p: french_fries(n),
+    'burnt_dish': lambda n, p: burnt_dish(n),
+    'electric_spark': lambda n, p: electric_spark(n),
 }
 
 
@@ -677,6 +681,96 @@ def intercom(name):
     red = M('intred', '#FF3838', em=True)
     _own(root, _box(f'{name}_box', metal, (0.2, 0.3, 0.12), (0, 0, 0.15)))
     _own(root, _cyl(f'{name}_btn', red, 0.04, 0.04, (0, 0.06, 0.15)))
+    return root
+
+
+def floating_counter(name, text='12,410', color='#FFE600', prefix='LIES: '):
+    """Holographic floating lie counter card mounted on DEF-head."""
+    root = _empty(name)
+    card_mat = M('fcard_bg', '#111318', '#0A0B0E')
+    rim_mat = M(f'fcard_rim_{color.replace("#","")}', color, em=True)
+    full_text = f'{prefix}{text}' if prefix else str(text)
+
+    # Background pill / card
+    _own(root, _box(f'{name}_card', card_mat, (0.34, 0.04, 0.13), (0, 0, 0)))
+    _own(root, _box(f'{name}_rim_t', rim_mat, (0.35, 0.044, 0.012), (0, 0, 0.065)), outline=False)
+    _own(root, _box(f'{name}_rim_b', rim_mat, (0.35, 0.044, 0.012), (0, 0, -0.065)), outline=False)
+    _own(root, tc.cone(f'{name}_pointer', rim_mat, (0, 0, -0.065), (0, 0, -0.11), 0.024, seg=8), outline=False)
+
+    cu = bpy.data.curves.new(f'{name}_txt', 'FONT')
+    cu.body = full_text
+    cu.align_x = 'CENTER'
+    cu.align_y = 'CENTER'
+    cu.size = 0.042
+    cu.extrude = 0.008
+    ob = bpy.data.objects.new(f'{name}_txt', cu)
+    bpy.context.scene.collection.objects.link(ob)
+    ob.rotation_euler = (math.radians(90), 0, 0)
+    ob.location = (0, -0.024, -0.005)
+    ob.data.materials.append(rim_mat)
+    ob.parent = root
+    return root
+
+
+def french_fries(name):
+    """Fast-food french fry carton with crispy golden fries."""
+    root = _empty(name)
+    red_mat = M('fry_red', '#E50914', '#B20710')
+    gold_mat = M('fry_gold', '#F7B731', '#D49B22')
+    arch_mat = M('fry_arch', '#FED330', em=True)
+
+    _own(root, _box(f'{name}_carton', red_mat, (0.12, 0.07, 0.14), (0, 0, 0.07)))
+    _own(root, tc.ellipsoid(f'{name}_arch', arch_mat, (0.035, 0.01, 0.03), (0, -0.037, 0.07), seg=10, rings=6), outline=False)
+
+    rnd = random.Random(hash(name) & 0xffff)
+    for i in range(9):
+        ox = (i % 3 - 1) * 0.03 + rnd.uniform(-0.008, 0.008)
+        oy = ((i // 3) - 1) * 0.015 + rnd.uniform(-0.005, 0.005)
+        h = rnd.uniform(0.08, 0.13)
+        p = _box(f'{name}_stick_{i}', gold_mat, (0.016, 0.016, h), (ox, oy, 0.14 + h / 2))
+        p.rotation_euler = (rnd.uniform(-0.15, 0.15), rnd.uniform(-0.2, 0.2), rnd.uniform(0, 3.14))
+        _own(root, p, outline=False)
+    return root
+
+
+def burnt_dish(name):
+    """Chef's smoking, disastrously burnt dish on a plate."""
+    root = _empty(name)
+    china = M('dish_china', '#FFFFFF', '#E2E8F0')
+    charcoal = M('dish_char', '#1A1A1A', '#0D0D0D')
+    toxic_green = M('dish_toxic', '#48BB78', em=True)
+
+    _own(root, _cyl(f'{name}_plate', china, 0.16, 0.02, (0, 0, 0.01), seg=24))
+    _own(root, _cyl(f'{name}_rim', china, 0.17, 0.008, (0, 0, 0.02), seg=24))
+    _own(root, tc.ellipsoid(f'{name}_burnt', charcoal, (0.09, 0.09, 0.06), (0, 0, 0.06), seg=14, rings=10))
+
+    for k in range(3):
+        _own(root, tc.ellipsoid(f'{name}_stench_{k}', toxic_green, (0.018, 0.018, 0.022),
+                               (0.03 * (k - 1), 0.02 * (k % 2 - 0.5), 0.13 + 0.03 * k), seg=10, rings=8), outline=False)
+    return root
+
+
+def electric_spark(name):
+    """Shock / electric zap lightning bolts around character head."""
+    root = _empty(name)
+    zap_mat = M('zap_yellow', '#FFF000', em=True)
+    cyan_mat = M('zap_cyan', '#00FFFF', em=True)
+
+    rnd = random.Random(hash(name) & 0xffff)
+    for i in range(5):
+        ang = (2 * math.pi * i) / 5
+        r = 0.28
+        x0, y0 = r * math.cos(ang), r * math.sin(ang)
+        z0 = rnd.uniform(0.05, 0.25)
+        x1 = x0 + rnd.uniform(-0.06, 0.06)
+        y1 = y0 + rnd.uniform(-0.06, 0.06)
+        z1 = z0 + rnd.uniform(0.08, 0.14)
+        mat = zap_mat if i % 2 == 0 else cyan_mat
+        _own(root, tc.capsule(f'{name}_bolt_{i}a', mat, (x0, y0, z0), (x1, y1, z1), 0.012, 0.008), outline=False)
+        x2 = x1 + rnd.uniform(-0.05, 0.05)
+        y2 = y1 + rnd.uniform(-0.05, 0.05)
+        z2 = z1 + rnd.uniform(0.06, 0.12)
+        _own(root, tc.capsule(f'{name}_bolt_{i}b', mat, (x1, y1, z1), (x2, y2, z2), 0.008, 0.005), outline=False)
     return root
 
 

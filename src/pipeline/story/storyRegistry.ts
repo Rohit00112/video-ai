@@ -17,6 +17,7 @@ import { FREEZE_TIME_CONCEPT, FREEZE_TIME_SCENES } from './freezeTimeStory.js';
 import { FIVE_HUNDRED_IQ_PUPPET_CONCEPT, FIVE_HUNDRED_IQ_PUPPET_SCENES } from './fiveHundredIqPuppetStory.js';
 import { PRISON_IQ_CONCEPT, PRISON_IQ_SCENES } from './prisonIqStory.js';
 import { EVERYONE_INVISIBLE_CONCEPT, EVERYONE_INVISIBLE_SCENES } from './everyoneInvisibleStory.js';
+import { FLOATING_LIE_COUNTER_CONCEPT, FLOATING_LIE_COUNTER_SCENES } from './floatingLieCounterStory.js';
 
 export interface RegisteredStory {
   id: string;
@@ -114,6 +115,11 @@ export const STORY_REGISTRY: Record<string, RegisteredStory> = {
     id: EVERYONE_INVISIBLE_CONCEPT.id,
     concept: EVERYONE_INVISIBLE_CONCEPT,
     scenes: EVERYONE_INVISIBLE_SCENES,
+  },
+  [FLOATING_LIE_COUNTER_CONCEPT.id]: {
+    id: FLOATING_LIE_COUNTER_CONCEPT.id,
+    concept: FLOATING_LIE_COUNTER_CONCEPT,
+    scenes: FLOATING_LIE_COUNTER_SCENES,
   },
 };
 
