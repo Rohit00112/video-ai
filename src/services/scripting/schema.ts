@@ -525,6 +525,14 @@ export const SceneScriptSchema = z.object({
         .object({ emoji: z.string(), atRatio: z.number().min(0).max(1), count: z.number().int().min(1).max(14).default(7) })
         .optional(),
       captionHighlights: z.array(z.string()).optional(),
+      engagementPoll: z
+        .object({
+          question: z.string(),
+          optionA: z.string(),
+          optionB: z.string(),
+          atRatio: z.number().min(0).max(1).default(0.5),
+        })
+        .optional(),
     })
     .optional(),
   /** Pre-rendered shot (e.g. Blender render) under public/, played instead of the Three.js world */

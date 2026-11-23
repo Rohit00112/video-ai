@@ -380,8 +380,9 @@ const BEATS: Beat[] = [
     emotion: 'warm_triumph',
     music: 'outro',
     sfx: [
-      { sfx: 'sparkle_chime', atRatio: 0.45, volume: 0.65 },
-      { sfx: 'ding', atRatio: 0.75, volume: 0.6 },
+      { sfx: 'sparkle_chime', atRatio: 0.35, volume: 0.65 },
+      { sfx: 'ding', atRatio: 0.48, volume: 0.75 },
+      { sfx: 'pop', atRatio: 0.72, volume: 0.7 },
     ],
     shot: {
       set: 'prison',
@@ -418,7 +419,17 @@ export const PRISON_IQ_SCENES: SceneScript[] = BEATS.map((b, i) => {
       captionHighlights: b.highlights,
       ...(b.topTitle ? { topTitle: b.topTitle, topTitleTone: b.topTitleTone ?? 'yellow' } : {}),
       ...(i === 0 ? { emojiBurst: { emoji: '⛓️', atRatio: 0.45, count: 8 } } : {}),
-      ...(i === 10 ? { emojiBurst: { emoji: '🧠', atRatio: 0.6, count: 10 } } : {}),
+      ...(i === 10
+        ? {
+            emojiBurst: { emoji: '🧠', atRatio: 0.52, count: 12 },
+            engagementPoll: {
+              question: 'WOULD YOU ESCAPE OR STAY? 🤔',
+              optionA: '🅰️ STAY 🧠',
+              optionB: '🅱️ ESCAPE 🏃',
+              atRatio: 0.48,
+            },
+          }
+        : {}),
     },
     experimentOverlay: {
       ...(b.gauge ? { gauge: b.gauge } : {}),
@@ -440,6 +451,7 @@ export const PRISON_IQ_SCENES: SceneScript[] = BEATS.map((b, i) => {
     environment: {
       ...BASE_PRISON_ENV,
       rainActive: b.shot.time === 'night',
+      showSubscribeCta: i === 10,
       prisonState: {
         ...BASE_PRISON_ENV.prisonState,
         zone: b.shot.set === 'laundry' ? 'laundry' : b.shot.set === 'office' ? 'warden_office' : b.shot.set === 'gates' ? 'gates' : b.shot.set === 'street' || b.shot.set === 'park' ? 'city_street' : 'cell',

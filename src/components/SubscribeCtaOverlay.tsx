@@ -5,6 +5,7 @@ interface SubscribeCtaOverlayProps {
   visible: boolean;
   sceneElapsedSeconds: number;
   sceneDurationSeconds: number;
+  bottom?: string | number;
 }
 
 /**
@@ -14,6 +15,7 @@ export const SubscribeCtaOverlay: React.FC<SubscribeCtaOverlayProps> = ({
   visible,
   sceneElapsedSeconds,
   sceneDurationSeconds,
+  bottom,
 }) => {
   if (!visible) return null;
 
@@ -34,9 +36,10 @@ export const SubscribeCtaOverlay: React.FC<SubscribeCtaOverlayProps> = ({
     <div
       style={{
         position: 'absolute',
-        top: '27%',
+        bottom: bottom ?? undefined,
+        top: bottom ? undefined : '27%',
         left: '50%',
-        transform: `translate(-50%, -50%) scale(${clamp(entrance, 0.001, 1.12).toFixed(4)})`,
+        transform: `translate(-50%, ${bottom ? '0%' : '-50%'}) scale(${clamp(entrance, 0.001, 1.12).toFixed(4)})`,
         display: 'flex',
         alignItems: 'center',
         gap: 24,

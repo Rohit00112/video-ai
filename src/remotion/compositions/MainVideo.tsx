@@ -133,6 +133,7 @@ export const MainVideo: React.FC<MainVideoProps> = ({ plan, onlySceneNumber }) =
         visible={compiledScene.scene.environment.showSubscribeCta}
         sceneElapsedSeconds={sceneElapsedSeconds}
         sceneDurationSeconds={sceneDurationSeconds}
+        bottom="12%"
       />
 
       {/* Framing vignette and scene transition layer */}

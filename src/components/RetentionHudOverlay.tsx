@@ -50,6 +50,14 @@ export const RetentionHudOverlay: React.FC<RetentionHudOverlayProps> = ({
 
       {hud?.topTitle && <TopTitle text={hud.topTitle} tone={hud.topTitleTone ?? 'yellow'} elapsed={sceneElapsedSeconds} remaining={sceneDurationSeconds - sceneElapsedSeconds} globalSeconds={globalSeconds} />}
 
+      {hud?.engagementPoll && sceneProgress >= (hud.engagementPoll.atRatio ?? 0.5) && (
+        <EngagementPollCard
+          poll={hud.engagementPoll}
+          elapsed={(sceneProgress - (hud.engagementPoll.atRatio ?? 0.5)) * sceneDurationSeconds}
+          globalSeconds={globalSeconds}
+        />
+      )}
+
       {hud?.emojiBurst && sceneProgress >= hud.emojiBurst.atRatio && (
         <EmojiBurst
           emoji={hud.emojiBurst.emoji}
@@ -154,5 +162,131 @@ const EmojiBurst: React.FC<{ emoji: string; count: number; elapsed: number; seed
         );
       })}
     </>
+  );
+};
+
+const EngagementPollCard: React.FC<{
+  poll: { question: string; optionA: string; optionB: string; atRatio?: number };
+  elapsed: number;
+  globalSeconds: number;
+}> = ({ poll, elapsed, globalSeconds }) => {
+  const pop = clamp(springPop(elapsed, 340, 14), 0, 1.15);
+  const wobble = Math.sin(globalSeconds * 4.0) * 1.5;
+  const pulse = 1 + 0.04 * Math.sin(globalSeconds * 8.0);
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 360,
+        left: 0,
+        right: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        transform: `scale(${pop.toFixed(3)}) rotate(${wobble.toFixed(2)}deg)`,
+        transformOrigin: '50% 50%',
+      }}
+    >
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #1A202C, #0F172A)',
+          borderRadius: 32,
+          border: '8px solid #FFD60A',
+          boxShadow: '0 16px 0 #000000, 0 24px 50px rgba(0,0,0,0.6)',
+          padding: '28px 36px',
+          maxWidth: 920,
+          width: '88%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 20,
+        }}
+      >
+        {/* Question Header */}
+        <div
+          style={{
+            fontFamily: '"Arial Rounded MT Bold", "Arial Black", sans-serif',
+            fontWeight: 900,
+            fontSize: 50,
+            color: '#FFFFFF',
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            letterSpacing: '0.02em',
+            textShadow: '0 4px 8px rgba(0,0,0,0.8)',
+          }}
+        >
+          {poll.question}
+        </div>
+
+        {/* Options Row */}
+        <div
+          style={{
+            display: 'flex',
+            gap: 18,
+            width: '100%',
+            justifyContent: 'center',
+          }}
+        >
+          {/* Option A */}
+          <div
+            style={{
+              flex: 1,
+              background: 'linear-gradient(180deg, #22C55E, #16A34A)',
+              color: '#FFFFFF',
+              borderRadius: 22,
+              border: '5px solid #000000',
+              boxShadow: '0 8px 0 #000000',
+              padding: '18px 12px',
+              textAlign: 'center',
+              fontFamily: '"Arial Rounded MT Bold", "Arial Black", sans-serif',
+              fontWeight: 900,
+              fontSize: 38,
+            }}
+          >
+            {poll.optionA}
+          </div>
+
+          {/* Option B */}
+          <div
+            style={{
+              flex: 1,
+              background: 'linear-gradient(180deg, #EF4444, #DC2626)',
+              color: '#FFFFFF',
+              borderRadius: 22,
+              border: '5px solid #000000',
+              boxShadow: '0 8px 0 #000000',
+              padding: '18px 12px',
+              textAlign: 'center',
+              fontFamily: '"Arial Rounded MT Bold", "Arial Black", sans-serif',
+              fontWeight: 900,
+              fontSize: 38,
+            }}
+          >
+            {poll.optionB}
+          </div>
+        </div>
+
+        {/* Pulsing Call To Action Footer */}
+        <div
+          style={{
+            transform: `scale(${pulse.toFixed(3)})`,
+            background: '#FFD60A',
+            color: '#000000',
+            padding: '12px 30px',
+            borderRadius: 20,
+            border: '4px solid #000000',
+            boxShadow: '0 6px 0 #000000',
+            fontFamily: '"Arial Rounded MT Bold", "Arial Black", sans-serif',
+            fontWeight: 900,
+            fontSize: 34,
+            letterSpacing: '0.03em',
+            textTransform: 'uppercase',
+          }}
+        >
+          💬 COMMENT YOUR CHOICE! 👇
+        </div>
+      </div>
+    </div>
   );
 };
