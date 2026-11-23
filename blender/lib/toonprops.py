@@ -471,8 +471,26 @@ def clock_prop(name):
     hand_mat = M('clockhand', '#E53E3E', em=True)
     _own(root, _cyl(f'{name}_rim', rim_mat, 0.45, 0.08, (0, 0, 0.04)))
     _own(root, _cyl(f'{name}_face', face_mat, 0.40, 0.09, (0, 0, 0.045)), outline=False)
-    _own(root, _box(f'{name}_hand_h', rim_mat, (0.04, 0.22, 0.02), (0, 0.08, 0.095)), outline=False)
-    _own(root, _box(f'{name}_hand_m', hand_mat, (0.02, 0.32, 0.02), (0.1, 0.05, 0.095)), outline=False)
+    # Hands sit on pivot empties at the dial centre so `slowTick` can rotate them in place.
+    for tag, length, mat in (('hour', 0.22, rim_mat), ('minute', 0.32, hand_mat)):
+        pivot = bpy.data.objects.new(f'{name}_{tag}_pivot', None)
+        bpy.context.scene.collection.objects.link(pivot)
+        pivot.parent = root
+        hand = _box(f'{name}_hand_{"h" if tag == "hour" else "m"}', mat,
+                    (0.04 if tag == 'hour' else 0.02, length, 0.02), (0, length / 2, 0.1))
+        hand.parent = pivot
+        hand.matrix_parent_inverse.identity()
+    return root
+
+
+def beam(name):
+    """Falling steel beam used for the 'predicted injury' beat (animated by render_scene)."""
+    root = _empty(name)
+    wood = M('beamwood', '#8B5A2B', '#5C3A17')
+    metal = M('beammtl', '#4A5568', '#2D3748')
+    _own(root, _box(f'{name}_body', wood, (1.4, 0.16, 0.16), (0, 0, 0)))
+    for sx in (-0.58, 0.58):
+        _own(root, _box(f'{name}_bracket_{sx}', metal, (0.08, 0.22, 0.22), (sx, 0, 0)), outline=False)
     return root
 
 
@@ -512,6 +530,7 @@ BUILDERS = {
     'intercom': lambda n, p: intercom(n),
     'brick_stack': lambda n, p: brick_stack(n),
     'clock_prop': lambda n, p: clock_prop(n),
+    'beam': lambda n, p: beam(n),
 }
 
 

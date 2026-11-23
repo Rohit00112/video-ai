@@ -105,7 +105,9 @@ def build_nla(rig, track, frames):
             offset = float(e.get('offset', 0))
             if offset:
                 st.action_frame_start = a0 + offset
-            length = st.action_frame_end - st.action_frame_start
+            speed = float(e.get('speed', 1.0))
+            st.scale = 1.0 / max(0.01, speed)
+            length = (st.action_frame_end - st.action_frame_start) * st.scale
             st.repeat = max(0.01, span / max(1.0, length))
         st.frame_end = start + span
         st.blend_type = 'REPLACE'
@@ -152,15 +154,16 @@ def face_parts(rig, tag):
     return [o for o in children(rig) if o.get(tag)]
 
 
-def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, emph=None):
+def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, emph=None, sleep_from=None):
     eyes = face_parts(rig, 'blink') + [o for o in children(rig) if '_hl' in o.name]
+    max_viseme_frame = int(sleep_from) if sleep_from is not None else frames
     if visemes:
         groups = {}
         for o in children(rig):
             if o.get('viseme'):
                 groups.setdefault(o['viseme'], []).append(o)
         prev = None
-        for f in range(min(frames, len(visemes))):
+        for f in range(min(max_viseme_frame, len(visemes))):
             v = visemes[f] if visemes[f] in groups else 'X'
             if v == prev:
                 continue
@@ -170,6 +173,11 @@ def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, 
                         o.scale = (1, 1, 1) if letter == v else (0, 0, 0)
                         o.keyframe_insert('scale', frame=f + 1)
             prev = v
+        if sleep_from is not None and max_viseme_frame < frames:
+            for letter, objs in groups.items():
+                for o in objs:
+                    o.scale = (1, 1, 1) if letter == 'X' else (0, 0, 0)
+                    o.keyframe_insert('scale', frame=max_viseme_frame + 1)
         for objs in groups.values():
             for o in objs:
                 if o.animation_data and o.animation_data.action:
@@ -193,12 +201,22 @@ def key_face(rig, visemes, frames, blink, seed, blink_from=0, blink_until=None, 
         rnd = random.Random(seed)
         f = blink_from + rnd.randint(10, 40)
         end = frames if blink_until is None else min(frames, blink_until - 5)
+        if sleep_from is not None:
+            end = min(end, int(sleep_from) - 5)
         while f < end:
             for o in eyes:
                 for df, s in ((-1, 1.0), (0, 0.45), (1, 0.08), (2, 0.08), (3, 0.6), (4, 1.0)):
                     o.scale = (1, 1, s)
                     o.keyframe_insert('scale', index=2, frame=max(1, f + df))
             f += rnd.randint(70, 130)
+    if sleep_from is not None and eyes:
+        sf = int(sleep_from)
+        for o in eyes:
+            o.scale = (1, 1, 1.0)
+            o.keyframe_insert('scale', index=2, frame=max(1, sf - 2))
+            o.scale = (1, 1, 0.08)
+            o.keyframe_insert('scale', index=2, frame=sf + 3)
+            o.keyframe_insert('scale', index=2, frame=frames + 1)
 
 
 def add_shadow(rig):
@@ -423,6 +441,90 @@ def build_props(spec, frames):
 GLOW_KEYS = ('glass', 'bulb', 'flame', 'doorglow', 'prop_tl#', 'ovenglass', 'winsky', 'banner', 'candle')
 
 
+def build_set_anim(spec, frames):
+    """Deterministic set-piece physics: sliding gates, falling beams, ticking clocks.
+
+    Entries are {name, type, ...} with frame numbers already resolved by produce-blender.
+    Everything is keyframed against the scene clock, so renders are reproducible and
+    seek-safe (no rigid-body cache, no simulation dependencies between shots).
+    """
+    for a in spec.get('setAnim', []):
+        root = bpy.data.objects.get(a['name'])
+        if not root:
+            print('SETANIM: missing object', a['name'])
+            continue
+        kind = a.get('type', 'slide')
+        f0 = max(1, int(a.get('start', 0)) + 1)
+        f1 = max(f0 + 1, min(frames + 1, int(a.get('end', frames)) + 1))
+        if kind == 'slide':
+            axis = {'x': 0, 'y': 1, 'z': 2}[a.get('axis', 'x')]
+            v0, v1 = float(a.get('from', 0)), float(a.get('to', 0))
+            for f, t in ((f0, 0.0), (f1, 1.0)):
+                if a.get('ease', 'inOut') == 'inOut':
+                    t = t * t * (3 - 2 * t)
+                root.location[axis] = v0 + (v1 - v0) * t
+                root.keyframe_insert('location', index=axis, frame=f)
+            for fc in tc.iter_fcurves(root.animation_data.action):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = 'BEZIER' if a.get('ease', 'inOut') == 'inOut' else 'LINEAR'
+        elif kind == 'drop':
+            # z = z0 + v0*t - 0.5*g*t^2, with damped bounces once the floor is reached.
+            g = float(a.get('gravity', 0.018))
+            z0, floor = float(a.get('from', 2.5)), float(a.get('to', 0.25))
+            bounce = max(0.0, min(0.8, float(a.get('bounce', 0.35))))
+            impact = math.sqrt(max(0.0, 2 * (z0 - floor) / g))
+            t = 0.0
+            bounced = 0
+            while t <= f1 - f0:
+                if t <= impact:
+                    z = z0 - 0.5 * g * t * t
+                else:
+                    # Successive parabolas with geometric restitution after each impact.
+                    z = floor
+                    remaining = t - impact
+                    for k in range(3):
+                        v = g * impact * (bounce ** (k + 1))
+                        dur = 2 * v / g
+                        if remaining <= dur:
+                            z = floor + v * remaining - 0.5 * g * remaining * remaining
+                            break
+                        remaining -= dur
+                root.location.z = max(floor, z)
+                root.keyframe_insert('location', index=2, frame=int(f0 + t))
+                if t > impact:
+                    bounced = min(2, int((t - impact) / max(0.001, 2 * impact)) + 1)
+                t += 2
+            for fc in tc.iter_fcurves(root.animation_data.action):
+                for kp in fc.keyframe_points:
+                    kp.interpolation = 'LINEAR'
+        elif kind == 'spin':
+            axis = {'x': 0, 'y': 1, 'z': 2}[a.get('axis', 'z')]
+            root.rotation_mode = 'XYZ'
+            for f, t in ((f0, 0.0), (f1, 1.0)):
+                root.rotation_euler[axis] = float(a.get('from', 0)) + (float(a.get('to', 6.28)) - float(a.get('from', 0))) * t
+                root.keyframe_insert('rotation_euler', index=axis, frame=f)
+        elif kind == 'scale':
+            v0, v1 = float(a.get('from', 0)), float(a.get('to', 1))
+            for f, v in ((f0, v0), (f1, v1)):
+                root.scale = (v, v, v)
+                root.keyframe_insert('scale', frame=f)
+        elif kind == 'slowTick':
+            step = max(2, int(a.get('step', 8)))
+            for obj in bpy.data.objects:
+                if obj.parent != root or not obj.name.endswith('_pivot'):
+                    continue
+                rate = 0.075 if 'minute' in obj.name else 0.075 / 12
+                obj.rotation_mode = 'XYZ'
+                for f in range(1, frames + 1, step):
+                    obj.rotation_euler.z = -rate * ((f - 1) // step)
+                    obj.keyframe_insert('rotation_euler', index=2, frame=f)
+            for obj in bpy.data.objects:
+                if obj.parent == root and obj.name.endswith('_pivot') and obj.animation_data:
+                    for fc in tc.iter_fcurves(obj.animation_data.action):
+                        for kp in fc.keyframe_points:
+                            kp.interpolation = 'CONSTANT'
+
+
 def ambient(frames):
     """Gentle life in every shot: leaves sway, clouds drift."""
     for o in bpy.data.objects:
@@ -527,6 +629,9 @@ def main():
     for n in ('Backdrop',):
         if n in bpy.data.objects:
             bpy.data.objects.remove(bpy.data.objects[n], do_unlink=True)
+    # AUTO sensor-fit picks the shorter sensor side in Blender 5.x portrait renders, which
+    # makes 9:16 shots ~2.7x tighter than the framing the shot specs were authored for.
+    sc.camera.data.sensor_fit = 'HORIZONTAL'
     ts.build_set(spec.get('set', 'street'))
     for o in bpy.data.objects:  # per-shot: hide set pieces that block the camera (name prefixes)
         if any(o.name.startswith(h) for h in spec.get('hide', [])):
@@ -544,12 +649,14 @@ def main():
         build_nla(rig, c.get('track') or [{'action': 'Idle_Loop', 'start': 0}], frames)
         key_path(rig, c.get('path'), (c.get('x', 0), c.get('y', 0), c.get('face', 0)))  # after NLA (active action)
         key_face(rig, c.get('visemes'), frames, c.get('blink', True), seed=i * 13 + 5,
-                 blink_from=int(c.get('blinkFrom', 0)), blink_until=c.get('blinkUntil'), emph=c.get('emph'))
+                 blink_from=int(c.get('blinkFrom', 0)), blink_until=c.get('blinkUntil'),
+                 emph=c.get('emph'), sleep_from=c.get('sleepFrom'))
         if c.get('scale'):
             rig.scale = (c['scale'],) * 3
         add_shadow(rig)
 
     build_props(spec, frames)
+    build_set_anim(spec, frames)
     place_camera(sc.camera, spec, frames)
     apply_dof(sc.camera, spec)
     if spec.get('ambient', True):

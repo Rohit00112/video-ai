@@ -34,6 +34,11 @@ function shotSpec(storyId: string, cs: CompiledScene, fps: number) {
     time: shot.time,
     hide: shot.hide,
     camera: shot.camera,
+    setAnim: (shot.setAnim ?? []).map((a: any) => ({
+      ...a,
+      start: fr(a.start ?? 0),
+      ...(a.end !== undefined ? { end: fr(a.end) } : {}),
+    })),
     out: `public/footage/${storyId}/${cs.scene.id}.mp4`,
     props: (shot.props ?? []).map((p: any) => ({
       ...p,
@@ -46,10 +51,16 @@ function shotSpec(storyId: string, cs: CompiledScene, fps: number) {
     })),
     chars: shot.chars.map((c: any) => ({
       ...c,
-      track: (c.track ?? []).map((t: any) => ({ ...t, start: fr(t.at ?? 0), ...(t.end !== undefined ? { end: fr(t.end) } : {}) })),
+      track: (c.track ?? []).map((t: any) => ({
+        ...t,
+        start: fr(t.at ?? 0),
+        ...(t.end !== undefined ? { end: fr(t.end) } : {}),
+        speed: t.speed,
+      })),
       path: c.path?.map((p: number[]) => [fr(p[0]), p[1], p[2], p[3]]),
       blinkUntil: c.blinkUntil !== undefined ? fr(c.blinkUntil) : undefined,
       blinkFrom: c.blinkFrom !== undefined ? fr(c.blinkFrom) : undefined,
+      sleepFrom: c.sleepFrom !== undefined ? fr(c.sleepFrom) : undefined,
       visemes: c.speaker ? cs.visemes : undefined,
       emph: c.speaker ? cs.emphasisFrames : undefined,
     })),

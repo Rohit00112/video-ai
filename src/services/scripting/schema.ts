@@ -541,6 +541,8 @@ export const SceneScriptSchema = z.object({
       time: z.enum(['day', 'evening', 'night', 'party']).optional(),
       /** Set-piece name prefixes to hide for this shot (e.g. a tree blocking the camera) */
       hide: z.array(z.string()).optional(),
+      /** Deterministic set-piece motion (sliding gates, falling beams, etc.); times are scene ratios */
+      setAnim: z.array(z.any()).optional(),
       /** Frozen-time grade between scene ratios (ripple on the snap / unfreeze) */
       freeze: z.object({ from: z.number().min(0).max(1).optional(), to: z.number().min(0).max(1).optional() }).optional(),
     })

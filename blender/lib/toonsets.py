@@ -221,14 +221,16 @@ def build_prison():
     box('BackWall', stone_mat, (14, 0.4, 6), (0, 3.2, 3.0))
     box('LeftWall', stone_mat, (0.4, 8, 6), (-3.2, 0, 3.0))
     box('RightWall', stone_mat, (0.4, 8, 6), (3.2, 0, 3.0))
-    box('Window_frame', M('wframe', '#1A1D22', '#101216'), (1.8, 0.5, 1.4), (0, 3.2, 4.2))
-    box('Window_glass', M('wglass', '#6BA4D8', em=True), (1.4, 0.55, 1.0), (0, 3.2, 4.2), outline=False)
+    box('Window_frame', M('wframe', '#1A1D22', '#101216'), (1.8, 0.5, 1.4), (0, 3.2, 2.8))
+    box('Window_glass', M('wglass', '#6BA4D8', em=True), (1.4, 0.55, 1.0), (0, 3.2, 2.8), outline=False)
     # Luminous moonlight beam on the cell floor
     box('MoonlightBeam', M('moonbeam', '#5B86AB', em=True), (2.2, 3.2, 0.01), (0, 1.5, 0.005), outline=False)
     bar_mat = M('bar', '#1A1E24', '#101317')
     box('Bar_top', bar_mat, (10, 0.14, 0.14), (0, -0.8, 5.0))
     box('Bar_bot', bar_mat, (10, 0.14, 0.14), (0, -0.8, 0.05))
     for i in range(-10, 11):
+        if abs(i * 0.45) < 0.25:
+            continue
         box(f'IronBar_{i}', bar_mat, (0.07, 0.07, 5.0), (i * 0.45, -0.8, 2.5))
     cot_mat = M('cot', '#252B33', '#171B20')
     box('Cot_frame', cot_mat, (2.2, 1.1, 0.08), (-1.8, 1.8, 0.45))
@@ -270,6 +272,8 @@ def build_laundry():
     sky('#222C38', '#141A22')
     box('Floor', M('laundry_floor', '#4A5568', '#323B4A'), (14, 10, 0.1), (0, 1.5, -0.05), outline=False)
     box('SafeZone', M('safezone', '#2F855A', em=True), (1.6, 2.0, 0.015), (0.0, 0.3, 0.01), outline=False)
+    # Upright glowing marker so the blind spot reads from a low camera angle
+    box('BlindSpotGlow', M('blindspot', '#38B26A', em=True), (0.7, 0.04, 1.3), (0.0, 0.25, 0.7), outline=False)
     box('BackWall', M('laundry_wall', '#718096', '#4A5568'), (14, 0.4, 6), (0, 3.2, 3.0))
     box('Pipe', M('pipe', '#A0AEC0', '#718096'), (14, 0.16, 0.16), (0, 2.5, 4.2))
     # Washers
@@ -288,32 +292,45 @@ def build_laundry():
 
 
 def build_prison_gates():
+    """Vertical-first gate set. Gates start CLOSED; `setAnim` in the shot spec slides them open."""
     sky('#73A9D8', '#4285F4')  # Bright daylight sky!
-    # Foreground prison asphalt
     box('ForeGround', M('gates_ground', '#4A5568', '#2D3748'), (20, 10, 0.1), (0, -2.0, -0.05), outline=False)
-    # Sunny outside grass lawn and sidewalk beyond the gate (y > 1.8)
     box('OutsideGrass', M('ograss', '#48BB78', '#2F855A'), (20, 10, 0.1), (0, 5.0, -0.05), outline=False)
-    box('OutsidePath', M('opath', '#CBD5E0', '#A0AEC0'), (3.6, 10, 0.12), (0, 5.0, -0.04), outline=False)
-    # Distant cartoon trees beyond the gate
-    for i, (tx, ty) in enumerate(((-3.2, 6.0), (3.4, 6.5), (-1.8, 8.5), (2.2, 8.0))):
-        tree(f'Tree_{i}', tx, ty, s=1.2)
-    # Heavy stone perimeter wall and pillars
+    box('OutsidePath', M('opath', '#CBD5E0', '#A0AEC0'), (2.4, 10, 0.12), (0, 5.0, -0.04), outline=False)
+    for i, (tx, ty) in enumerate(((-2.1, 5.4), (2.3, 6.1), (-1.4, 8.2), (1.7, 8.8))):
+        tree(f'Tree_{i}', tx, ty, s=1.1)
     pillar_mat = M('pillar', '#5A6577', '#3D4552')
-    box('Pillar_L', pillar_mat, (1.4, 1.4, 5.5), (-2.4, 1.8, 2.75))
-    box('Pillar_R', pillar_mat, (1.4, 1.4, 5.5), (2.4, 1.8, 2.75))
-    box('Arch_top', pillar_mat, (6.2, 1.2, 0.8), (0, 1.8, 5.1))
-    box('Wall_L', pillar_mat, (6.0, 0.8, 4.5), (-5.8, 1.8, 2.25))
-    box('Wall_R', pillar_mat, (6.0, 0.8, 4.5), (5.8, 1.8, 2.25))
-    # SLID OPEN IRON GATES! (Pushed wide open to the sides so the center is open!)
+    box('Pillar_L', pillar_mat, (0.7, 1.1, 5.0), (-1.45, 1.8, 2.5))
+    box('Pillar_R', pillar_mat, (0.7, 1.1, 5.0), (1.45, 1.8, 2.5))
+    box('Arch_top', pillar_mat, (3.6, 1.0, 0.7), (0, 1.8, 4.65))
+    box('Wall_L', pillar_mat, (4.0, 0.9, 4.6), (-3.8, 1.8, 2.3))
+    box('Wall_R', pillar_mat, (4.0, 0.9, 4.6), (3.8, 1.8, 2.3))
+    # Two sliding leaves, closed at x≈0. Their parent empties are animated by `setAnim`.
     bar_mat = M('gate_bar', '#1A1E24', '#101317')
-    box('Gate_L_frame', bar_mat, (1.8, 0.1, 4.0), (-2.5, 1.82, 2.0))
-    for k in range(5):
-        box(f'Gate_L_bar_{k}', bar_mat, (0.05, 0.05, 3.8), (-3.2 + k * 0.35, 1.82, 2.0))
-    box('Gate_R_frame', bar_mat, (1.8, 0.1, 4.0), (2.5, 1.82, 2.0))
-    for k in range(5):
-        box(f'Gate_R_bar_{k}', bar_mat, (0.05, 0.05, 3.8), (1.8 + k * 0.35, 1.82, 2.0))
+    for side, sx in (('L', -1), ('R', 1)):
+        root = bpy.data.objects.new(f'GatePanel_{side}', None)
+        bpy.context.scene.collection.objects.link(root)
+        for obj in (
+            box(f'Gate_{side}_frame', bar_mat, (1.25, 0.12, 4.4), (sx * 0.66, 1.82, 2.2)),
+            box(f'Gate_{side}_top', bar_mat, (1.25, 0.12, 0.12), (sx * 0.66, 1.82, 4.32)),
+        ):
+            obj.parent = root
+        for k in range(4):
+            obj = box(f'Gate_{side}_bar_{k}', bar_mat, (0.05, 0.05, 4.1),
+                      (sx * (0.18 + k * 0.32), 1.82, 2.05))
+            obj.parent = root
+        sign = M(f'gate_signal_{side}', '#F6AD55' if side == 'L' else '#68D391', em=True)
+        obj = box(f'Gate_{side}_lamp', sign, (0.16, 0.06, 0.16), (sx * 0.66, 1.74, 4.05), outline=False)
+        obj.parent = root
+        # Hazard stripes make the sliding leaves read as gates, not a black wall.
+        stripe = M('gate_stripe', '#ECC94B', em=True)
+        for z in (0.55, 2.15, 3.75):
+            obj = box(f'Gate_{side}_stripe_{z}', stripe, (1.1, 0.055, 0.1), (sx * 0.66, 1.73, z), outline=False)
+            obj.parent = root
     hazard_mat = M('hazard', '#ECC94B', em=True)
-    box('Hazard_Line', hazard_mat, (3.2, 0.3, 0.02), (0, 1.8, 0.02), outline=False)
+    box('Hazard_Line', hazard_mat, (2.4, 0.3, 0.02), (0, 1.8, 0.02), outline=False)
+    # Post for the intercom used in the voluntary-return beat.
+    box('IntercomPost', M('intpost', '#3A424D', '#242930'), (0.1, 0.1, 1.1), (0.45, 0.9, 0.55))
 
 
 SETS = {

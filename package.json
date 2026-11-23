@@ -13,6 +13,7 @@
     "render:final": "tsx scripts/render-video.ts",
     "qa": "tsx scripts/quality-check.ts",
     "produce": "tsx scripts/produce.ts",
+    "produce:blender": "tsx scripts/produce-blender.ts",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts"
   },

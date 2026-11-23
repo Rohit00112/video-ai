@@ -92,6 +92,7 @@ interface Beat {
   music?: SceneScript['musicEnergy'];
   emotion?: SceneScript['emotion'];
   sfx?: SceneScript['soundEffects'];
+  setAnim?: Shot['setAnim'];
   pad?: number;
 }
 
@@ -115,9 +116,9 @@ const BEATS: Beat[] = [
     shot: {
       set: 'prison',
       time: 'night',
-      camera: CAM([0, -3.2, 0.85], [0, 0.3, 0.65], [0, -2.5, 0.82], [0, 0.3, 0.65], 65, { char: 'ravi', fstop: 2.5 }),
+      camera: CAM([0.22, -3.2, 0.85], [0.22, 0.3, 0.65], [0.22, -2.5, 0.82], [0.22, 0.3, 0.65], 65, { char: 'ravi', fstop: 2.5 }),
       chars: [
-        { id: 'ravi', x: 0, y: 0.3, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_think' }] },
+        { id: 'ravi', x: 0.22, y: 0.3, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_think' }] },
       ],
       props: [{ id: 'bricks', type: 'brick_stack', loc: [0.8, 0.6, 0] }],
     },
@@ -166,10 +167,10 @@ const BEATS: Beat[] = [
     shot: {
       set: 'laundry',
       time: 'day',
-      camera: CAM([-2.4, -4.8, 1.25], [0, 0.6, 0.65], [-1.8, -4.2, 1.15], [0, 0.6, 0.68], 55),
+      camera: CAM([-0.35, -2.0, 0.92], [-0.1, 0.15, 0.62], [-0.3, -1.75, 0.9], [-0.1, 0.15, 0.62], 48),
       chars: [
-        { id: 'guard', path: [[0, -2.5, 0.8, 90], [0.65, 0.2, 0.8, 90], [1, 2.2, 0.8, 90]], track: [{ at: 0, action: 'Walk_Loop' }] },
-        { id: 'ravi', x: -0.6, y: -0.2, face: 15, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_hips' }] },
+        { id: 'guard', path: [[0, -1.6, 0.6, 90], [0.5, 0.0, 0.6, 90], [1, 1.6, 0.6, 90]], track: [{ at: 0, action: 'Walk_Loop' }] },
+        { id: 'ravi', path: [[0, -0.6, -0.2, 20], [0.4, -0.6, -0.2, 20], [0.75, -0.2, 0.1, 15], [1, -0.2, 0.1, 15]], track: [{ at: 0, action: 'Crouch_Idle_Loop' }, { at: 0.4, action: 'Crouch_Fwd_Loop' }, { at: 0.75, action: 'Crouch_Idle_Loop' }], speaker: true },
       ],
     },
   },
@@ -192,9 +193,9 @@ const BEATS: Beat[] = [
       set: 'prison',
       time: 'day',
       hide: ['IronBar', 'Bar_'],
-      camera: CAM([0, -2.2, 0.82], [0, 0, 0.65], [0, -1.8, 0.80], [0, 0, 0.65], 70, { char: 'ravi', fstop: 2.2 }),
+      camera: CAM([0, -2.4, 0.85], [0, 0.1, 0.65], [0, -2.0, 0.82], [0, 0.1, 0.65], 65, { char: 'ravi', fstop: 2.2 }),
       chars: [
-        { id: 'ravi', x: 0, y: 0, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_shrug' }] },
+        { id: 'ravi', path: [[0, 0, 0.8, 0], [0.45, 0, 0.1, 0], [1, 0, 0.1, 0]], speaker: true, track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.45, action: 'G_snap' }, { at: 0.75, action: 'G_shrug' }] },
       ],
     },
   },
@@ -214,16 +215,22 @@ const BEATS: Beat[] = [
       { sfx: 'ding', atRatio: 0.48, volume: 0.7 },
       { sfx: 'sparkle_chime', atRatio: 0.75, volume: 0.6 },
     ],
+    setAnim: [
+      { name: 'beam_main', type: 'drop', from: 3.2, to: 0.15, gravity: 0.024, bounce: 0.3, start: 0.38, end: 0.9 },
+    ],
     shot: {
       set: 'office',
       time: 'day',
-      camera: CAM([0, -3.8, 1.25], [0, 0.8, 0.65], [0.3, -3.2, 1.15], [0, 0.8, 0.65], 60, { char: 'ravi', fstop: 2.8 }),
+      camera: CAM([0, -4.0, 1.15], [0, 0.65, 0.75], [0.15, -3.6, 1.12], [0.1, 0.65, 0.75], 55, { char: 'ravi', fstop: 2.8 }),
       chars: [
-        { id: 'ravi', x: -0.9, y: 0.2, face: 35, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.4, action: 'G_point' }, { at: 0.75, action: 'G_hips' }] },
-        { id: 'warden', x: 0.8, y: 1.2, face: -30, track: [{ at: 0, action: 'Sitting_Idle_Loop' }, { at: 0.45, action: 'G_facepalm' }] },
-        { id: 'guard', x: 1.8, y: 0.4, face: -45, track: [{ at: 0, action: 'G_cheer' }] },
+        { id: 'ravi', x: -0.6, y: -0.15, face: 25, speaker: true, track: [{ at: 0, action: 'Interact' }, { at: 0.35, action: 'G_point' }, { at: 0.7, action: 'G_hips' }] },
+        { id: 'warden', x: 0.35, y: 1.45, face: -20, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.42, action: 'G_facepalm' }] },
+        { id: 'guard', path: [[0, 0.85, 0.15, -25], [0.36, 0.85, 0.15, -25], [0.55, 0.45, -0.2, -15], [1, 0.45, -0.2, -15]], track: [{ at: 0, action: 'Idle_Loop' }, { at: 0.36, action: 'Jump_Start' }, { at: 0.6, action: 'G_cheer' }] },
       ],
-      props: [{ id: 'puzzle', type: 'puzzle_box', loc: [0.0, 1.2, 0.85] }],
+      props: [
+        { id: 'puzzle', type: 'puzzle_box', loc: [0.05, 0.95, 0.72], scale: 1.2 },
+        { id: 'beam', type: 'beam', loc: [0.85, 0.15, 0.0] },
+      ],
     },
   },
 
@@ -244,9 +251,10 @@ const BEATS: Beat[] = [
     shot: {
       set: 'office',
       time: 'day',
-      camera: CAM([0, -2.8, 0.95], [0, 0.2, 0.65], [0, -2.4, 0.92], [0, 0.2, 0.65], 65, { char: 'ravi', fstop: 2.4 }),
+      camera: CAM([0, -3.2, 0.95], [0, 0.4, 0.65], [0, -2.8, 0.92], [0, 0.4, 0.65], 60, { char: 'ravi', fstop: 2.4 }),
       chars: [
-        { id: 'ravi', x: 0, y: 0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_cheer' }] },
+        { id: 'ravi', path: [[0, -0.45, -0.2, 20], [0.5, -0.2, 0.4, 20], [1, -0.2, 0.4, 20]], speaker: true, track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.5, action: 'G_point' }, { at: 0.8, action: 'G_cheer' }] },
+        { id: 'warden', x: 0.35, y: 1.45, face: -20, track: [{ at: 0, action: 'G_think' }, { at: 0.55, action: 'G_wave' }] },
       ],
       props: [{ id: 'casefile', type: 'case_file', hold: { char: 'ravi', bone: 'DEF-hand.L', from: 0 } }],
     },
@@ -263,14 +271,19 @@ const BEATS: Beat[] = [
     music: 'triumphant',
     sfx: [
       { sfx: 'whoosh', atRatio: 0.1, volume: 0.6 },
+      { sfx: 'impact_boom', atRatio: 0.18, volume: 0.55 },
       { sfx: 'sparkle_chime', atRatio: 0.4, volume: 0.65 },
+    ],
+    setAnim: [
+      { name: 'GatePanel_L', type: 'slide', axis: 'x', from: 0, to: -1.4, start: 0.05, end: 0.55 },
+      { name: 'GatePanel_R', type: 'slide', axis: 'x', from: 0, to: 1.4, start: 0.05, end: 0.55 },
     ],
     shot: {
       set: 'gates',
       time: 'day',
-      camera: CAM([0, -5.2, 0.6], [0, 1.2, 1.2], [0, -4.2, 0.8], [0, 1.6, 1.2], 55),
+      camera: CAM([0, -2.6, 0.95], [0, 1.4, 0.85], [0, -1.8, 0.92], [0, 1.8, 0.85], 50),
       chars: [
-        { id: 'ravi', path: [[0, 0, 0.2, 0], [0.5, 0, 1.5, 0], [1, 0, 3.2, 0]], track: [{ at: 0, action: 'Walk_Formal_Loop' }], speaker: true },
+        { id: 'ravi', path: [[0, 0, 0.2, 180], [0.55, 0, 1.8, 180], [1, 0, 3.4, 180]], track: [{ at: 0, action: 'Walk_Formal_Loop' }], speaker: true },
       ],
     },
   },
@@ -288,15 +301,18 @@ const BEATS: Beat[] = [
       { sfx: 'tick', atRatio: 0.3, volume: 0.5 },
       { sfx: 'sigh_down', atRatio: 0.8, volume: 0.6 },
     ],
+    setAnim: [
+      { name: 'clock_main', type: 'slowTick', step: 8 },
+    ],
     shot: {
       set: 'street',
       time: 'day',
       camera: CAM([-0.2, -4.2, 0.85], [0, 0.3, 0.62], [0.2, -3.6, 0.82], [0, 0.3, 0.62], 65, { char: 'ravi', fstop: 2.8 }),
       chars: [
-        { id: 'ravi', x: -0.6, y: 0.2, face: 25, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_think' }] },
-        { id: 'mayor', x: 0.7, y: 0.25, face: -25, track: [{ at: 0, action: 'Idle_Talking_Loop' }] },
+        { id: 'ravi', x: -0.4, y: 0.15, face: 25, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_think' }] },
+        { id: 'mayor', x: 0.45, y: 0.2, face: -30, track: [{ at: 0, action: 'Idle_Talking_Loop', speed: 0.25 }] },
       ],
-      props: [{ id: 'clock', type: 'clock_prop', loc: [0.0, 1.8, 1.8] }],
+      props: [{ id: 'clock', type: 'clock_prop', loc: [0.0, 0.5, 1.5], rot: [90, 0, 0], scale: 1.4 }],
     },
   },
 
@@ -319,10 +335,10 @@ const BEATS: Beat[] = [
       time: 'day',
       camera: CAM([0, -3.6, 0.75], [0, 0.2, 0.52], [0, -3.0, 0.72], [0, 0.2, 0.52], 65, { char: 'ravi', fstop: 2.2 }),
       chars: [
-        { id: 'ravi', x: -0.4, y: 0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Sitting_Talking_Loop' }, { at: 0.4, action: 'Sitting_Idle_Loop', hold: 5 }] },
-        { id: 'chloe', x: 0.8, y: 0.3, face: -35, track: [{ at: 0, action: 'Idle_Talking_Loop' }] },
+        { id: 'ravi', x: -0.35, y: 0.36, face: 0, speaker: true, sleepFrom: 0.4, track: [{ at: 0, action: 'Sitting_Talking_Loop' }, { at: 0.35, action: 'Sitting_Idle_Loop', speed: 0.5 }] },
+        { id: 'chloe', x: 0.45, y: 0.25, face: -35, track: [{ at: 0, action: 'Idle_Talking_Loop', speed: 0.25 }] },
       ],
-      props: [{ id: 'bench', type: 'mini_sofa', loc: [-0.4, 0.2, 0] }],
+      props: [{ id: 'bench', type: 'mini_sofa', loc: [-0.35, 0.2, 0] }],
     },
   },
 
@@ -344,11 +360,11 @@ const BEATS: Beat[] = [
     shot: {
       set: 'gates',
       time: 'night',
-      camera: CAM([0.8, -2.4, 0.95], [0.4, 1.4, 0.75], [0.6, -1.8, 0.92], [0.4, 1.4, 0.75], 55, { char: 'ravi', fstop: 2.6 }),
+      camera: CAM([0.7, -2.0, 0.95], [0.35, 1.1, 0.75], [0.55, -1.6, 0.92], [0.35, 1.1, 0.75], 55, { char: 'ravi', fstop: 2.6 }),
       chars: [
-        { id: 'ravi', path: [[0, -0.6, 0.5, 30], [0.6, 0.2, 1.2, 20], [1, 0.35, 1.35, 10]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.6, action: 'Interact' }], speaker: true },
+        { id: 'ravi', path: [[0, -0.2, 0.4, 25], [0.55, 0.35, 0.85, 15], [1, 0.35, 0.85, 15]], track: [{ at: 0, action: 'Walk_Loop' }, { at: 0.55, action: 'Interact' }], speaker: true },
       ],
-      props: [{ id: 'buzzer', type: 'intercom', loc: [0.6, 1.5, 0.65] }],
+      props: [{ id: 'buzzer', type: 'intercom', loc: [0.45, 0.9, 1.0], scale: 2.2 }],
     },
   },
 
@@ -370,9 +386,9 @@ const BEATS: Beat[] = [
     shot: {
       set: 'prison',
       time: 'night',
-      camera: CAM([0, -2.6, 0.82], [0, 0.4, 0.65], [0, -3.5, 0.88], [0, 0.4, 0.65], 65, { char: 'ravi', fstop: 2.4 }),
+      camera: CAM([0, -2.6, 0.85], [0, 0.2, 0.65], [0, -3.2, 0.90], [0, 0.2, 0.65], 65, { char: 'ravi', fstop: 2.4 }),
       chars: [
-        { id: 'ravi', x: 0, y: 0.4, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.5, action: 'G_point' }, { at: 0.8, action: 'G_cheer' }] },
+        { id: 'ravi', x: 0, y: 0.2, face: 0, speaker: true, track: [{ at: 0, action: 'Idle_Talking_Loop' }, { at: 0.45, action: 'G_point' }, { at: 0.75, action: 'G_cheer' }] },
       ],
     },
   },
@@ -434,7 +450,7 @@ export const PRISON_IQ_SCENES: SceneScript[] = BEATS.map((b, i) => {
     soundEffects: b.sfx ?? [],
     musicEnergy: b.music ?? 'driving',
     transition: i === 0 ? 'zoom_punch' : 'cut',
-    shot: b.shot,
+    shot: b.setAnim ? { ...b.shot, setAnim: b.setAnim } : b.shot,
     visualObjective: b.title,
   } as SceneScript;
 });
